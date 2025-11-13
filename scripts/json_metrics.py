@@ -53,6 +53,27 @@ def normalize_value(val: Any) -> str:
 # ============================================================================
 
 
+def simple_field_match(gold_val: Any, pred_val: Any) -> float:
+    """
+    Simple exact field comparison (used when no field_matchers provided).
+    Returns 1.0 for exact match after normalization, 0.0 otherwise.
+    """
+    # Both None: perfect match
+    if gold_val is None and pred_val is None:
+        return 1.0
+
+    # One is None: complete failure
+    if gold_val is None or pred_val is None:
+        return 0.0
+
+    # Normalize for comparison
+    g_norm = normalize_value(gold_val)
+    p_norm = normalize_value(pred_val)
+
+    # Exact match after normalization
+    return 1.0 if g_norm == p_norm else 0.0
+
+
 def semantic_field_match(gold_val: Any, pred_val: Any) -> float:
     """
     Compare two field values with semantic awareness.
@@ -103,13 +124,25 @@ def semantic_field_match(gold_val: Any, pred_val: Any) -> float:
     return similarity * 0.5  # Max 0.5 for partial string matches
 
 
-def evaluate_record_pair(gold_rec: dict, pred_rec: dict) -> tuple[float, dict]:
+def evaluate_record_pair(
+    gold_rec: dict, pred_rec: dict, field_matchers: dict[str, Any] | None = None
+) -> tuple[float, dict]:
     """
     Evaluate match between a single gold-pred record pair.
+
+    Args:
+        gold_rec: Ground truth record
+        pred_rec: Predicted record
+        field_matchers: Optional dict of {field_name: matcher} for compositional matching.
+                       Each matcher should have a .match(gold, pred) -> (score, feedback) method.
+                       If provided, ALL fields must have a matcher defined (will raise ValueError if missing).
 
     Returns:
         score: float [0, 1]
         details: dict with field-level breakdown
+
+    Raises:
+        ValueError: If field_matchers is provided but a field is missing a matcher
     """
     all_keys = set(gold_rec.keys()) | set(pred_rec.keys())
 
@@ -120,7 +153,21 @@ def evaluate_record_pair(gold_rec: dict, pred_rec: dict) -> tuple[float, dict]:
     for key in all_keys:
         gold_val = gold_rec.get(key)
         pred_val = pred_rec.get(key)
-        field_scores[key] = semantic_field_match(gold_val, pred_val)
+
+        # Use compositional matcher if provided
+        if field_matchers is not None:
+            if key not in field_matchers:
+                raise ValueError(
+                    f"Field '{key}' is missing from field_matchers. "
+                    f"When using field_matchers, ALL fields must have a matcher defined. "
+                    f"Available matchers: {list(field_matchers.keys())}"
+                )
+            matcher = field_matchers[key]
+            score, _ = matcher.match(gold_val, pred_val)
+            field_scores[key] = score
+        else:
+            # Fallback to simple exact matching when no matchers provided
+            field_scores[key] = simple_field_match(gold_val, pred_val)
 
     avg_score = sum(field_scores.values()) / len(field_scores)
 
@@ -140,15 +187,22 @@ def evaluate_record_pair(gold_rec: dict, pred_rec: dict) -> tuple[float, dict]:
 # ============================================================================
 
 
-def compute_record_similarity(gold_rec: dict, pred_rec: dict) -> float:
+def compute_record_similarity(gold_rec: dict, pred_rec: dict, field_matchers: dict[str, Any] | None = None) -> float:
     """Compute similarity between two records (used for matching)."""
-    score, _ = evaluate_record_pair(gold_rec, pred_rec)
+    score, _ = evaluate_record_pair(gold_rec, pred_rec, field_matchers)
     return score
 
 
-def match_records_hungarian(gold_records: list[dict], pred_records: list[dict]) -> list[tuple[int, int, float]]:
+def match_records_hungarian(
+    gold_records: list[dict], pred_records: list[dict], field_matchers: dict[str, Any] | None = None
+) -> list[tuple[int, int, float]]:
     """
     Match gold and predicted records using Hungarian algorithm.
+
+    Args:
+        gold_records: List of ground truth records
+        pred_records: List of predicted records
+        field_matchers: Optional dict of {field_name: matcher} for compositional matching
 
     Returns:
         List of (gold_idx, pred_idx, similarity_score) tuples
@@ -163,7 +217,7 @@ def match_records_hungarian(gold_records: list[dict], pred_records: list[dict]) 
     cost_matrix = np.zeros((n_gold, n_pred))
     for i, gold_rec in enumerate(gold_records):
         for j, pred_rec in enumerate(pred_records):
-            similarity = compute_record_similarity(gold_rec, pred_rec)
+            similarity = compute_record_similarity(gold_rec, pred_rec, field_matchers)
             cost_matrix[i, j] = -similarity  # Negative for minimization
 
     # Solve assignment problem
@@ -184,7 +238,11 @@ def match_records_hungarian(gold_records: list[dict], pred_records: list[dict]) 
 
 
 def json_match_score(
-    ground_truth: Any, predicted: Any, count_weight: float = 0.4, match_weight: float = 0.6
+    ground_truth: Any,
+    predicted: Any,
+    count_weight: float = 0.4,
+    match_weight: float = 0.6,
+    field_matchers: dict[str, Any] | None = None,
 ) -> tuple[float, dict]:
     """
     Compare JSON lists of records with proper record matching.
@@ -251,7 +309,7 @@ def json_match_score(
     count_score = count_ratio**2
 
     # COMPONENT 2: Record matching score
-    matches = match_records_hungarian(gold_records, pred_records)
+    matches = match_records_hungarian(gold_records, pred_records, field_matchers)
 
     if not matches:
         match_score = 0.0
@@ -265,7 +323,7 @@ def json_match_score(
             gold_rec = gold_records[gold_idx]
             pred_rec = pred_records[pred_idx]
 
-            rec_score, rec_details = evaluate_record_pair(gold_rec, pred_rec)
+            rec_score, rec_details = evaluate_record_pair(gold_rec, pred_rec, field_matchers)
             match_scores.append(rec_score)
 
             record_details.append(
@@ -413,6 +471,7 @@ def hybrid_json_score(
     judge_lm: dspy.LM | None = None,
     programmatic_weight: float = 0.2,
     llm_weight: float = 0.8,
+    field_matchers: dict[str, Any] | None = None,
 ) -> tuple[float, dict]:
     """
     Combine programmatic record-matching and LLM scoring.
@@ -423,13 +482,14 @@ def hybrid_json_score(
         judge_lm: LLM for judging
         programmatic_weight: Weight for programmatic score
         llm_weight: Weight for LLM score
+        field_matchers: Optional dict of {field_name: matcher} for compositional matching
 
     Returns:
         score: Combined score [0, 1]
         details: Full breakdown
     """
     # Programmatic score
-    prog_score, prog_details = json_match_score(ground_truth, predicted)
+    prog_score, prog_details = json_match_score(ground_truth, predicted, field_matchers=field_matchers)
 
     # LLM score
     if judge_lm is not None:
