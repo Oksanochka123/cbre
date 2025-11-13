@@ -2,6 +2,7 @@
 
 from typing import Any
 
+from scripts.constants import NULL_VALUES
 from scripts.matchers.base_matcher import BaseMatcher
 
 
@@ -13,8 +14,6 @@ class EnumMatcher(BaseMatcher):
         "yes_no_na": ["yes", "no", "n/a"],
         "boolean": ["true", "false"],
     }
-
-    NULL_VALUES = {"", "null", "none", "na", "n/a", "unknown", "tbd", "tba", "unk", "pending", "to be determined", "0"}
 
     def __init__(
         self,
@@ -46,7 +45,7 @@ class EnumMatcher(BaseMatcher):
         if val is None:
             return None
         s = str(val).strip()
-        if self.treat_null_as_none and s.lower() in self.NULL_VALUES:
+        if self.treat_null_as_none and s.lower() in NULL_VALUES:
             return None
         return s if self.case_sensitive else s.lower()
 
