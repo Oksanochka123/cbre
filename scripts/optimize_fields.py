@@ -12,9 +12,9 @@ from pathlib import Path
 import dspy
 from tqdm import tqdm
 
-from scripts.optimization.data_utils import json_to_dspy, save_datasets
-from scripts.optimization.field_optimizer import FieldOptimizer
-from scripts.optimization.optimizer_utils import load_config, save_optimization_summary
+from optimization.data_utils import json_to_dspy, save_datasets
+from optimization.field_optimizer import FieldOptimizer
+from optimization.optimizer_utils import load_config, save_optimization_summary
 
 
 def setup_language_models(api_key: str, student_model: str, reflection_model: str) -> tuple[dspy.LM, dspy.LM]:

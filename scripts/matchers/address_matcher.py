@@ -3,7 +3,7 @@
 import re
 from difflib import SequenceMatcher
 
-from scripts.matchers.base_matcher import BaseMatcher
+from matchers.base_matcher import BaseMatcher
 
 
 class AddressMatcher(BaseMatcher):

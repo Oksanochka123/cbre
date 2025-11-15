@@ -3,7 +3,7 @@
 import re
 from typing import Any
 
-from scripts.matchers.base_matcher import BaseMatcher
+from matchers.base_matcher import BaseMatcher
 
 
 class NumberMatcher(BaseMatcher):

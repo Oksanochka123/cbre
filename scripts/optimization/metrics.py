@@ -4,7 +4,7 @@ from typing import Any, Dict, Optional
 
 import dspy
 
-from scripts.matchers import MatcherRegistry
+from matchers import MatcherRegistry
 
 
 class MatcherMetric:

@@ -5,7 +5,7 @@ from typing import Any, Dict, List
 import dspy
 import numpy as np
 
-from scripts.metrics import MatcherMetric
+from optimization.metrics import MatcherMetric
 
 
 class FieldEvaluator:

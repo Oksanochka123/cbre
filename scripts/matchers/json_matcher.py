@@ -4,7 +4,7 @@ from typing import Any
 
 import dspy
 
-from scripts.matchers.base_matcher import BaseMatcher
+from matchers.base_matcher import BaseMatcher
 
 
 class JSONMatcher(BaseMatcher):
@@ -47,7 +47,7 @@ class JSONMatcher(BaseMatcher):
     def _build_field_matchers(self) -> dict[str, Any]:
         """Build field matchers from schema configuration."""
         # Lazy import to avoid circular dependency
-        from scripts.matchers.matcher_registry import MatcherRegistry
+        from matchers.matcher_registry import MatcherRegistry
 
         if not self.field_schema:
             return {}
@@ -61,7 +61,7 @@ class JSONMatcher(BaseMatcher):
         return matchers
 
     def match(self, gold: Any, pred: Any) -> tuple[float, str]:
-        from scripts.json_metrics import hybrid_json_score, json_match_score
+        from json_metrics import hybrid_json_score, json_match_score
 
         if self.judge_lm:
             score, details = hybrid_json_score(

@@ -5,9 +5,9 @@ from typing import Any, Dict, List, Optional
 
 import dspy
 
-from scripts.metrics import MatcherMetric
-from scripts.optimizer_utils import dspy_logging, handle_tied_candidates, save_gepa_results
-from scripts.signature_utils import create_signature
+from optimization.metrics import MatcherMetric
+from optimization.optimizer_utils import dspy_logging, handle_tied_candidates, save_gepa_results
+from optimization.signature_utils import create_signature
 
 
 class FieldOptimizer:

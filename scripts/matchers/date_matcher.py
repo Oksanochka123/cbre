@@ -2,7 +2,7 @@
 
 from datetime import datetime
 
-from scripts.matchers.base_matcher import BaseMatcher
+from matchers.base_matcher import BaseMatcher
 
 
 class DateMatcher(BaseMatcher):

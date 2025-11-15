@@ -10,7 +10,7 @@ import argparse
 import json
 from pathlib import Path
 
-from scripts.optimization.data_utils import mapper_to_dspy
+from optimization.data_utils import mapper_to_dspy
 
 
 def preview_example(example, max_text_len: int = 500):

@@ -2,8 +2,8 @@
 
 from typing import Any
 
-from scripts.constants import NULL_VALUES
-from scripts.matchers.base_matcher import BaseMatcher
+from constants import NULL_VALUES
+from matchers.base_matcher import BaseMatcher
 
 
 class EnumMatcher(BaseMatcher):
