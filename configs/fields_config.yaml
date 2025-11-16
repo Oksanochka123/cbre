@@ -1,0 +1,1029 @@
+# Field Extraction Configuration
+# Wave 1 and Wave 2 fields with matcher configurations
+
+# ==============================================================================
+# WAVE 1 FIELDS
+# ==============================================================================
+fields:
+  # Gen Info 1 - Property Information
+  property_name:
+    wave: 1
+    type: string
+    matcher: StringMatcher
+    params:
+      threshold: 0.85
+
+  country:
+    wave: 1
+    type: string
+    matcher: StringMatcher
+    params:
+      threshold: 1.0
+
+  # Gen Info 1 - Lease Information
+  lease_commence:
+    wave: 1
+    type: date
+    matcher: DateMatcher
+    params: {}
+
+  actual_lease_start_date:
+    wave: 1
+    type: date
+    matcher: DateMatcher
+    params: {}
+
+  first_occupied:
+    wave: 1
+    type: date
+    matcher: DateMatcher
+    params: {}
+
+  expiration_date:
+    wave: 1
+    type: date
+    matcher: DateMatcher
+    params: {}
+
+  # Gen Info 1 - Tenant Information
+  lessee_name:
+    wave: 1
+    type: string
+    matcher: StringMatcher
+    params:
+      threshold: 0.85
+
+  tenant_entity_type:
+    wave: 1
+    type: enum
+    matcher: EnumMatcher
+    params:
+      valid_values:
+        - "Charitable Org"
+        - "Other"
+        - "Corporation"
+        - "Inc."
+        - "LLP"
+        - "Individual"
+        - "Government"
+        - "Partnership"
+        - "LLC"
+      case_sensitive: false
+
+  # Gen Info 1 - Billing Information
+  billing_phone:
+    wave: 1
+    type: phone
+    matcher: PhoneMatcher
+    params: {}
+
+  billing_address:
+    wave: 1
+    type: address
+    matcher: AddressMatcher
+    params:
+      threshold: 0.7
+
+  billing_city:
+    wave: 1
+    type: string
+    matcher: StringMatcher
+    params:
+      threshold: 0.9
+
+  billing_state:
+    wave: 1
+    type: string
+    matcher: StringMatcher
+    params:
+      threshold: 0.9
+
+  billing_zip_code:
+    wave: 1
+    type: string
+    matcher: StringMatcher
+    params:
+      threshold: 1.0
+
+  # Gen Info 1 - Premise Information
+  premise_address:
+    wave: 1
+    type: address
+    matcher: AddressMatcher
+    params:
+      threshold: 0.7
+
+  premise_city:
+    wave: 1
+    type: string
+    matcher: StringMatcher
+    params:
+      threshold: 0.9
+
+  premise_state:
+    wave: 1
+    type: string
+    matcher: StringMatcher
+    params:
+      threshold: 0.9
+
+  premise_zipcode:
+    wave: 1
+    type: string
+    matcher: StringMatcher
+    params:
+      threshold: 1.0
+
+  premise_information_table:
+    wave: 1
+    type: json
+    matcher: JSONMatcher
+    params:
+      programmatic_weight: 0.3
+      llm_weight: 0.7
+      field_schema:
+        floor_number:
+          type: string
+          threshold: 1.0
+        unit_number:
+          type: string
+          threshold: 1.0
+        rentable_leaseable_sf:
+          type: number
+        move_in_date:
+          type: date
+        unit_expiration:
+          type: date
+
+  # Gen Info 2 - Deposits
+  deposit_required:
+    wave: 1
+    type: enum
+    matcher: EnumMatcher
+    params:
+      preset: "yes_no"
+
+  prepaid_rent_required:
+    wave: 1
+    type: enum
+    matcher: EnumMatcher
+    params:
+      preset: "yes_no"
+
+  letter_of_credit_or_lease_bond:
+    wave: 1
+    type: enum
+    matcher: EnumMatcher
+    params:
+      valid_values:
+        - "None"
+        - "No"
+        - "Letter of Credit"
+        - "Lease Bond"
+      case_sensitive: false
+
+  guaranty:
+    wave: 1
+    type: enum
+    matcher: EnumMatcher
+    params:
+      preset: "yes_no"
+
+  # Gen Info 3 - Operations
+  storage_required:
+    wave: 1
+    type: enum
+    matcher: EnumMatcher
+    params:
+      preset: "yes_no"
+
+  cpi_adjustments_required:
+    wave: 1
+    type: enum
+    matcher: EnumMatcher
+    params:
+      preset: "yes_no_na"
+
+  rent_due_day:
+    wave: 1
+    type: number
+    matcher: NumberMatcher
+    params: {}
+
+  late_fees_included:
+    wave: 1
+    type: string
+    matcher: StringMatcher
+    params:
+      threshold: 0.7
+
+  late_fees_calculation_method:
+    wave: 1
+    type: enum
+    matcher: EnumMatcher
+    params:
+      valid_values:
+        - "Max % Allowed by Law"
+        - "% Owed-Total"
+        - "% Monthly Rent"
+        - "Flat Amount"
+        - "% Owed-Month"
+        - "NA"
+      case_sensitive: false
+
+  percentage_rent_required:
+    wave: 1
+    type: enum
+    matcher: EnumMatcher
+    params:
+      preset: "yes_no"
+
+  # Recurring Billings
+  rec_billings:
+    wave: 1
+    type: json
+    matcher: JSONMatcher
+    params:
+      programmatic_weight: 0.3
+      llm_weight: 0.7
+      field_schema:
+        unit_number:
+          type: string
+          threshold: 1.0
+        start_date:
+          type: date
+        amount:
+          type: float
+          tolerance: 0.01
+        frequency:
+          type: enum
+          valid_values:
+            - "Annual"
+            - "Monthly"
+            - "Quarterly"
+            - "Semi-Annually"
+
+  # OPX - CAM
+  opx_lease_type:
+    wave: 1
+    type: string
+    matcher: StringMatcher
+    params:
+      threshold: 0.9
+
+  opx_tenant_expense_recapture:
+    wave: 1
+    type: json
+    matcher: JSONMatcher
+    params:
+      programmatic_weight: 0.3
+      llm_weight: 0.7
+      field_schema:
+        unit_number:
+          type: string
+          threshold: 1.0
+        start_date:
+          type: date
+        end_date:
+          type: date
+        prorata_share_pct:
+          type: float
+          tolerance: 0.0005
+        fixed_prorata_share:
+          type: enum
+          preset: "yes_no"
+        admin:
+          type: enum
+          preset: "yes_no_na"
+        base_year:
+          type: string
+          threshold: 0.9
+
+  # Options
+  opt_first_rofo_in_lease:
+    wave: 1
+    type: enum
+    matcher: EnumMatcher
+    params:
+      preset: "yes_no"
+
+  opt_first_rofr_in_lease:
+    wave: 1
+    type: enum
+    matcher: EnumMatcher
+    params:
+      preset: "yes_no"
+
+  opt_contraction_in_lease:
+    wave: 1
+    type: enum
+    matcher: EnumMatcher
+    params:
+      preset: "yes_no"
+
+  opt_termination_in_lease:
+    wave: 1
+    type: enum
+    matcher: EnumMatcher
+    params:
+      preset: "yes_no"
+
+  renewal_extension_in_lease:
+    wave: 1
+    type: enum
+    matcher: EnumMatcher
+    params:
+      preset: "yes_no_na"
+
+  opt_expansion_in_lease:
+    wave: 1
+    type: enum
+    matcher: EnumMatcher
+    params:
+      preset: "yes_no"
+
+  insurance_required:
+    wave: 1
+    type: enum
+    matcher: EnumMatcher
+    params:
+      preset: "yes_no"
+
+  # Clauses
+  exclusive_use_article_paragraph:
+    wave: 1
+    type: string
+    matcher: StringMatcher
+    params:
+      threshold: 0.7
+
+  exclusive_use_description:
+    wave: 1
+    type: string
+    matcher: StringMatcher
+    params:
+      threshold: 0.6
+
+  holdover_article_paragraph:
+    wave: 1
+    type: string
+    matcher: StringMatcher
+    params:
+      threshold: 0.7
+
+  holdover_description:
+    wave: 1
+    type: string
+    matcher: StringMatcher
+    params:
+      threshold: 0.6
+
+  relocation_article_paragraph:
+    wave: 1
+    type: string
+    matcher: StringMatcher
+    params:
+      threshold: 0.7
+
+  relocation_description:
+    wave: 1
+    type: string
+    matcher: StringMatcher
+    params:
+      threshold: 0.6
+
+  # Additional Wave 1
+  abstract_purpose:
+    wave: 1
+    type: enum
+    matcher: EnumMatcher
+    params:
+      valid_values:
+        - "New Lease"
+        - "Initial Input"
+        - "Change - Other"
+        - "Change - Lse Amendment"
+        - "Change - Lse Extension (same ID)"
+        - "Change - Correct Charges"
+        - "Change - New Client"
+        - "Change - Lse Renewal (new ID)"
+      case_sensitive: false
+
+# ==============================================================================
+# WAVE 2 FIELDS
+# ==============================================================================
+
+  # Gen Info 1 - Property
+  building_square_footage:
+    wave: 2
+    type: number
+    matcher: NumberMatcher
+    params: {}
+
+  # Gen Info 1 - Tenant
+  dba_name:
+    wave: 2
+    type: string
+    matcher: StringMatcher
+    params:
+      threshold: 0.85
+
+  # Gen Info 1 - Premise
+  building_prorata_pct:
+    wave: 2
+    type: float
+    matcher: FloatMatcher
+    params:
+      tolerance: 0.0005
+
+  project_prorata_pct:
+    wave: 2
+    type: float
+    matcher: FloatMatcher
+    params:
+      tolerance: 0.0005
+
+  total_premise_rentable_sf:
+    wave: 2
+    type: number
+    matcher: NumberMatcher
+    params: {}
+
+  # Gen Info 1 - Lease
+  execution_date:
+    wave: 2
+    type: date
+    matcher: DateMatcher
+    params: {}
+
+  # Gen Info 2 - Deposits
+  security_deposit:
+    wave: 2
+    type: float
+    matcher: FloatMatcher
+    params:
+      tolerance: 0.01
+
+  security_deposit_interest:
+    wave: 2
+    type: enum
+    matcher: EnumMatcher
+    params:
+      preset: "yes_no"
+
+  additional_deposit_required:
+    wave: 2
+    type: float
+    matcher: FloatMatcher
+    params:
+      tolerance: 0.01
+
+  additional_deposit_interest:
+    wave: 2
+    type: enum
+    matcher: EnumMatcher
+    params:
+      preset: "yes_no"
+
+  deposits_comments:
+    wave: 2
+    type: string
+    matcher: StringMatcher
+    params:
+      threshold: 0.6
+
+  # Gen Info 2 - Prepaid Rent
+  prepaid_rent_amount:
+    wave: 2
+    type: float
+    matcher: FloatMatcher
+    params:
+      tolerance: 0.01
+
+  prepaid_rent_month_to_apply:
+    wave: 2
+    type: enum
+    matcher: EnumMatcher
+    params:
+      valid_values:
+        - "January"
+        - "February"
+        - "March"
+        - "April"
+        - "May"
+        - "June"
+        - "July"
+        - "August"
+        - "September"
+        - "October"
+        - "November"
+        - "December"
+
+  prepaid_rent_interest:
+    wave: 2
+    type: enum
+    matcher: EnumMatcher
+    params:
+      preset: "yes_no"
+
+  # Gen Info 2 - Letter of Credit
+  loc_lb_amount:
+    wave: 2
+    type: number
+    matcher: NumberMatcher
+    params: {}
+
+  loc_lb_beneficiary:
+    wave: 2
+    type: string
+    matcher: StringMatcher
+    params:
+      threshold: 0.85
+
+  loc_lb_auto_reduce:
+    wave: 2
+    type: enum
+    matcher: EnumMatcher
+    params:
+      preset: "yes_no"
+
+  loc_lb_expiration_date:
+    wave: 2
+    type: date
+    matcher: DateMatcher
+    params: {}
+
+  # Gen Info 2 - Guaranty
+  guarantor_name:
+    wave: 2
+    type: string
+    matcher: StringMatcher
+    params:
+      threshold: 0.85
+
+  guarantor_amount:
+    wave: 2
+    type: string
+    matcher: StringMatcher
+    params:
+      threshold: 0.6
+
+  nature_of_guaranty:
+    wave: 2
+    type: string
+    matcher: StringMatcher
+    params:
+      threshold: 0.6
+
+  guaranty_expiration_date:
+    wave: 2
+    type: string
+    matcher: StringMatcher
+    params:
+      threshold: 0.7
+
+  # Gen Info 3 - Parking
+  total_parking_stalls:
+    wave: 2
+    type: float
+    matcher: FloatMatcher
+    params:
+      tolerance: 0.1
+
+  # Gen Info 3 - Storage
+  storage_monthly_rate:
+    wave: 2
+    type: string
+    matcher: StringMatcher
+    params:
+      threshold: 0.7
+
+  storage_square_feet:
+    wave: 2
+    type: number
+    matcher: NumberMatcher
+    params: {}
+
+  storage_unit_number:
+    wave: 2
+    type: string
+    matcher: StringMatcher
+    params:
+      threshold: 1.0
+
+  # Gen Info 3 - CPI
+  cpi_name_base_index:
+    wave: 2
+    type: string
+    matcher: StringMatcher
+    params:
+      threshold: 0.7
+
+  # Gen Info 3 - Percentage Rent
+  percentage_rent_sales_reported:
+    wave: 2
+    type: enum
+    matcher: EnumMatcher
+    params:
+      valid_values:
+        - "Annual"
+        - "Monthly"
+        - "Quarterly"
+        - "Semi-Annually"
+        - "No"
+
+  percentage_rent_table:
+    wave: 2
+    type: json
+    matcher: JSONMatcher
+    params:
+      programmatic_weight: 0.3
+      llm_weight: 0.7
+      field_schema:
+        percent_rate:
+          type: float
+          tolerance: 0.001
+        breakpoint:
+          type: float
+          tolerance: 0.01
+        ceiling:
+          type: float
+          tolerance: 0.001
+        effective_date:
+          type: date
+        natural_or_fixed:
+          type: enum
+          valid_values:
+            - "Natural"
+            - "Fixed"
+
+  # OPX - CAM Wave 2
+  opx_base_year_gross_up_pct:
+    wave: 2
+    type: float
+    matcher: FloatMatcher
+    params:
+      tolerance: 0.001
+
+  opx_max_pct_inc:
+    wave: 2
+    type: float
+    matcher: FloatMatcher
+    params:
+      tolerance: 0.001
+
+  # OPX - Reconciliation
+  reconciliation_right_to_audit:
+    wave: 2
+    type: enum
+    matcher: EnumMatcher
+    params:
+      valid_values:
+        - "Yes"
+        - "No"
+        - "Lease is Silent"
+
+  reconciliation_due_date:
+    wave: 2
+    type: string
+    matcher: StringMatcher
+    params:
+      threshold: 0.6
+
+  # Opt - Misc - Insurance
+  gl_insurance_per_occurrence:
+    wave: 2
+    type: number
+    matcher: NumberMatcher
+    params: {}
+
+  gl_insurance_aggregate:
+    wave: 2
+    type: number
+    matcher: NumberMatcher
+    params: {}
+
+  insurance_term_start:
+    wave: 2
+    type: date
+    matcher: DateMatcher
+    params: {}
+
+  tenant_property_insurance_required:
+    wave: 2
+    type: enum
+    matcher: EnumMatcher
+    params:
+      preset: "yes_no"
+
+  # Opt - Misc - Additional Contact
+  legal_notice_name:
+    wave: 2
+    type: string
+    matcher: StringMatcher
+    params:
+      threshold: 0.85
+
+  legal_notice_address:
+    wave: 2
+    type: address
+    matcher: AddressMatcher
+    params:
+      threshold: 0.7
+
+  legal_notice_attention:
+    wave: 2
+    type: string
+    matcher: StringMatcher
+    params:
+      threshold: 0.85
+
+  legal_notice_city_state_zip:
+    wave: 2
+    type: string
+    matcher: StringMatcher
+    params:
+      threshold: 0.8
+
+  # Opt - Misc - Rights
+  renewal_extension_expiration_date:
+    wave: 2
+    type: date
+    matcher: DateMatcher
+    params: {}
+
+  renewal_extension_who_exercises:
+    wave: 2
+    type: enum
+    matcher: EnumMatcher
+    params:
+      valid_values:
+        - "Tenant"
+        - "Landlord"
+        - "Tenant/Landlord"
+
+  termination_expiration_date:
+    wave: 2
+    type: date
+    matcher: DateMatcher
+    params: {}
+
+  termination_who_exercises:
+    wave: 2
+    type: enum
+    matcher: EnumMatcher
+    params:
+      valid_values:
+        - "Tenant"
+        - "Landlord"
+        - "Tenant/Landlord"
+
+  rofo_expiration_date:
+    wave: 2
+    type: date
+    matcher: DateMatcher
+    params: {}
+
+  rofo_ongoing:
+    wave: 2
+    type: enum
+    matcher: EnumMatcher
+    params:
+      preset: "yes_no"
+
+  # Opt - Misc - TI
+  ti_amortized:
+    wave: 2
+    type: string
+    matcher: StringMatcher
+    params:
+      threshold: 0.6
+
+  # Rec Billings Wave 2
+  rec_billings_ti_dependent:
+    wave: 2
+    type: enum
+    matcher: EnumMatcher
+    params:
+      preset: "yes_no"
+
+# ==============================================================================
+# FIELD GROUPINGS
+# ==============================================================================
+field_groups:
+  # Wave 1 groups
+  wave1_all:
+    - property_name
+    - country
+    - lease_commence
+    - actual_lease_start_date
+    - first_occupied
+    - expiration_date
+    - lessee_name
+    - tenant_entity_type
+    - billing_phone
+    - billing_address
+    - billing_city
+    - billing_state
+    - billing_zip_code
+    - premise_address
+    - premise_city
+    - premise_state
+    - premise_zipcode
+    - premise_information_table
+    - deposit_required
+    - prepaid_rent_required
+    - letter_of_credit_or_lease_bond
+    - guaranty
+    - storage_required
+    - cpi_adjustments_required
+    - rent_due_day
+    - late_fees_included
+    - late_fees_calculation_method
+    - percentage_rent_required
+    - rec_billings
+    - opx_lease_type
+    - opx_tenant_expense_recapture
+    - opt_first_rofo_in_lease
+    - opt_first_rofr_in_lease
+    - opt_contraction_in_lease
+    - opt_termination_in_lease
+    - renewal_extension_in_lease
+    - opt_expansion_in_lease
+    - insurance_required
+    - exclusive_use_article_paragraph
+    - exclusive_use_description
+    - holdover_article_paragraph
+    - holdover_description
+    - relocation_article_paragraph
+    - relocation_description
+    - abstract_purpose
+
+  # Wave 2 groups
+  wave2_all:
+    - building_square_footage
+    - dba_name
+    - building_prorata_pct
+    - project_prorata_pct
+    - total_premise_rentable_sf
+    - execution_date
+    - security_deposit
+    - security_deposit_interest
+    - additional_deposit_required
+    - additional_deposit_interest
+    - deposits_comments
+    - prepaid_rent_amount
+    - prepaid_rent_month_to_apply
+    - prepaid_rent_interest
+    - loc_lb_amount
+    - loc_lb_beneficiary
+    - loc_lb_auto_reduce
+    - loc_lb_expiration_date
+    - guarantor_name
+    - guarantor_amount
+    - nature_of_guaranty
+    - guaranty_expiration_date
+    - total_parking_stalls
+    - storage_monthly_rate
+    - storage_square_feet
+    - storage_unit_number
+    - cpi_name_base_index
+    - percentage_rent_sales_reported
+    - percentage_rent_table
+    - opx_base_year_gross_up_pct
+    - opx_max_pct_inc
+    - reconciliation_right_to_audit
+    - reconciliation_due_date
+    - gl_insurance_per_occurrence
+    - gl_insurance_aggregate
+    - insurance_term_start
+    - tenant_property_insurance_required
+    - legal_notice_name
+    - legal_notice_address
+    - legal_notice_attention
+    - legal_notice_city_state_zip
+    - renewal_extension_expiration_date
+    - renewal_extension_who_exercises
+    - termination_expiration_date
+    - termination_who_exercises
+    - rofo_expiration_date
+    - rofo_ongoing
+    - ti_amortized
+    - rec_billings_ti_dependent
+
+  # Type-based groups (cross-wave)
+  all_strings:
+    - property_name
+    - lessee_name
+    - billing_city
+    - billing_state
+    - premise_city
+    - premise_state
+    - opx_lease_type
+    - exclusive_use_article_paragraph
+    - exclusive_use_description
+    - holdover_article_paragraph
+    - holdover_description
+    - relocation_article_paragraph
+    - relocation_description
+    - late_fees_included
+    - dba_name
+    - loc_lb_beneficiary
+    - guarantor_name
+    - guarantor_amount
+    - nature_of_guaranty
+    - guaranty_expiration_date
+    - storage_monthly_rate
+    - storage_unit_number
+    - cpi_name_base_index
+    - reconciliation_due_date
+    - deposits_comments
+    - legal_notice_name
+    - legal_notice_attention
+    - legal_notice_city_state_zip
+    - ti_amortized
+
+  all_addresses:
+    - billing_address
+    - premise_address
+    - legal_notice_address
+
+  all_phones:
+    - billing_phone
+
+  all_dates:
+    - lease_commence
+    - actual_lease_start_date
+    - first_occupied
+    - expiration_date
+    - execution_date
+    - loc_lb_expiration_date
+    - insurance_term_start
+    - renewal_extension_expiration_date
+    - termination_expiration_date
+    - rofo_expiration_date
+
+  all_enums:
+    - tenant_entity_type
+    - deposit_required
+    - prepaid_rent_required
+    - letter_of_credit_or_lease_bond
+    - guaranty
+    - storage_required
+    - cpi_adjustments_required
+    - late_fees_calculation_method
+    - percentage_rent_required
+    - opt_first_rofo_in_lease
+    - opt_first_rofr_in_lease
+    - opt_contraction_in_lease
+    - opt_termination_in_lease
+    - renewal_extension_in_lease
+    - opt_expansion_in_lease
+    - insurance_required
+    - abstract_purpose
+    - security_deposit_interest
+    - additional_deposit_interest
+    - prepaid_rent_month_to_apply
+    - prepaid_rent_interest
+    - loc_lb_auto_reduce
+    - percentage_rent_sales_reported
+    - reconciliation_right_to_audit
+    - tenant_property_insurance_required
+    - renewal_extension_who_exercises
+    - termination_who_exercises
+    - rofo_ongoing
+    - rec_billings_ti_dependent
+
+  all_numbers:
+    - rent_due_day
+    - building_square_footage
+    - total_premise_rentable_sf
+    - storage_square_feet
+    - loc_lb_amount
+    - gl_insurance_per_occurrence
+    - gl_insurance_aggregate
+
+  all_floats:
+    - building_prorata_pct
+    - project_prorata_pct
+    - security_deposit
+    - additional_deposit_required
+    - prepaid_rent_amount
+    - total_parking_stalls
+    - opx_base_year_gross_up_pct
+    - opx_max_pct_inc
+
+  all_json:
+    - premise_information_table
+    - rec_billings
+    - opx_tenant_expense_recapture
+    - percentage_rent_table
+
+# ==============================================================================
+# OPTIMIZATION SETTINGS
+# ==============================================================================
+optimization:
+  student_model: "openai/gpt-5-mini"
+  reflection_model: "openai/gpt-5-mini"
+  gepa_auto: "light"
+  gepa_seed: 42
