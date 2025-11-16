@@ -10,6 +10,7 @@ fields:
     wave: 1
     type: string
     matcher: StringMatcher
+    json_ref: "STATIC::Gen Info 1::Gen Info 1|Property Information|Property Name"
     params:
       threshold: 0.85
 
@@ -17,6 +18,7 @@ fields:
     wave: 1
     type: string
     matcher: StringMatcher
+    json_ref: "STATIC::Gen Info 1::Gen Info 1|Property Information|Country"
     params:
       threshold: 1.0
 
@@ -25,24 +27,28 @@ fields:
     wave: 1
     type: date
     matcher: DateMatcher
+    json_ref: "STATIC::Gen Info 1::Gen Info 1|Lease Information|Lease Commence"
     params: {}
 
   actual_lease_start_date:
     wave: 1
     type: date
     matcher: DateMatcher
+    json_ref: "STATIC::Gen Info 1::Gen Info 1|Lease Information|Actual Lease Start Date"
     params: {}
 
   first_occupied:
     wave: 1
     type: date
     matcher: DateMatcher
+    json_ref: "STATIC::Gen Info 1::Gen Info 1|Lease Information|First Occupied"
     params: {}
 
   expiration_date:
     wave: 1
     type: date
     matcher: DateMatcher
+    json_ref: "STATIC::Gen Info 1::Gen Info 1|Lease Information|Expiration Date"
     params: {}
 
   # Gen Info 1 - Tenant Information
@@ -50,6 +56,7 @@ fields:
     wave: 1
     type: string
     matcher: StringMatcher
+    json_ref: "STATIC::Gen Info 1::Gen Info 1|Tenant Information|Lessee Name"
     params:
       threshold: 0.85
 
@@ -57,6 +64,7 @@ fields:
     wave: 1
     type: enum
     matcher: EnumMatcher
+    json_ref: "STATIC::Gen Info 1::Gen Info 1|Tenant Information|Tenant Entity Type"
     params:
       valid_values:
         - "Charitable Org"
@@ -75,12 +83,14 @@ fields:
     wave: 1
     type: phone
     matcher: PhoneMatcher
+    json_ref: "STATIC::Gen Info 1::Gen Info 1|Billing Information|Billing Phone #"
     params: {}
 
   billing_address:
     wave: 1
     type: address
     matcher: AddressMatcher
+    json_ref: "STATIC::Gen Info 1::Gen Info 1|Billing Information|Billing Address"
     params:
       threshold: 0.7
 
@@ -88,6 +98,7 @@ fields:
     wave: 1
     type: string
     matcher: StringMatcher
+    json_ref: "STATIC::Gen Info 1::Gen Info 1|Billing Information|City"
     params:
       threshold: 0.9
 
@@ -95,6 +106,7 @@ fields:
     wave: 1
     type: string
     matcher: StringMatcher
+    json_ref: "STATIC::Gen Info 1::Gen Info 1|Billing Information|State"
     params:
       threshold: 0.9
 
@@ -102,6 +114,7 @@ fields:
     wave: 1
     type: string
     matcher: StringMatcher
+    json_ref: "STATIC::Gen Info 1::Gen Info 1|Billing Information|Zip Code"
     params:
       threshold: 1.0
 
@@ -110,6 +123,7 @@ fields:
     wave: 1
     type: address
     matcher: AddressMatcher
+    json_ref: "STATIC::Gen Info 1::Gen Info 1|Premise Information|Address"
     params:
       threshold: 0.7
 
@@ -117,6 +131,7 @@ fields:
     wave: 1
     type: string
     matcher: StringMatcher
+    json_ref: "STATIC::Gen Info 1::Gen Info 1|Premise Information|City"
     params:
       threshold: 0.9
 
@@ -124,6 +139,7 @@ fields:
     wave: 1
     type: string
     matcher: StringMatcher
+    json_ref: "STATIC::Gen Info 1::Gen Info 1|Premise Information|State"
     params:
       threshold: 0.9
 
@@ -131,6 +147,7 @@ fields:
     wave: 1
     type: string
     matcher: StringMatcher
+    json_ref: "STATIC::Gen Info 1::Gen Info 1|Premise Information|Zip Code"
     params:
       threshold: 1.0
 
@@ -138,6 +155,7 @@ fields:
     wave: 1
     type: json
     matcher: JSONMatcher
+    json_ref: "TABLE::Gen Info 1::Gen Info 1|Premise Information"
     params:
       programmatic_weight: 0.3
       llm_weight: 0.7
@@ -160,6 +178,7 @@ fields:
     wave: 1
     type: enum
     matcher: EnumMatcher
+    json_ref: "STATIC::Gen Info 2::Gen Info 2|Deposits|Required?"
     params:
       preset: "yes_no"
 
@@ -167,6 +186,7 @@ fields:
     wave: 1
     type: enum
     matcher: EnumMatcher
+    json_ref: "STATIC::Gen Info 2::Gen Info 2|Prepaid Rent|Required?"
     params:
       preset: "yes_no"
 
@@ -174,6 +194,7 @@ fields:
     wave: 1
     type: enum
     matcher: EnumMatcher
+    json_ref: "STATIC::Gen Info 2::Gen Info 2|Letter of Credit/Lease Bond|Letter of Credit/Lease Bond?"
     params:
       valid_values:
         - "None"
@@ -186,6 +207,7 @@ fields:
     wave: 1
     type: enum
     matcher: EnumMatcher
+    json_ref: "STATIC::Gen Info 2::Gen Info 2|Guaranty|Guaranty?"
     params:
       preset: "yes_no"
 
@@ -194,6 +216,7 @@ fields:
     wave: 1
     type: enum
     matcher: EnumMatcher
+    json_ref: "STATIC::Gen Info 3::Gen Info 3|Storage|Required?"
     params:
       preset: "yes_no"
 
@@ -201,6 +224,7 @@ fields:
     wave: 1
     type: enum
     matcher: EnumMatcher
+    json_ref: "STATIC::Gen Info 3::Gen Info 3|CPI Adjustments|Required?"
     params:
       preset: "yes_no_na"
 
@@ -208,12 +232,14 @@ fields:
     wave: 1
     type: number
     matcher: NumberMatcher
+    json_ref: "STATIC::Gen Info 3::Gen Info 3|Late Fees|1st Late Fee Rent Due Day"
     params: {}
 
   late_fees_included:
     wave: 1
     type: string
     matcher: StringMatcher
+    json_ref: "STATIC::Gen Info 3::Gen Info 3|Late Fees|1st Late Fee Included in Late Fee"
     params:
       threshold: 0.7
 
@@ -221,6 +247,7 @@ fields:
     wave: 1
     type: enum
     matcher: EnumMatcher
+    json_ref: "STATIC::Gen Info 3::Gen Info 3|Late Fees|1st Late Fee Calculation Method"
     params:
       valid_values:
         - "Max % Allowed by Law"
@@ -235,6 +262,7 @@ fields:
     wave: 1
     type: enum
     matcher: EnumMatcher
+    json_ref: "STATIC::Gen Info 3::Gen Info 3|Percentage Rent|Required?"
     params:
       preset: "yes_no"
 
@@ -243,6 +271,7 @@ fields:
     wave: 1
     type: json
     matcher: JSONMatcher
+    json_ref: "TABLE::Rec Billings::Rec Billings|Recurring Billings"
     params:
       programmatic_weight: 0.3
       llm_weight: 0.7
@@ -268,6 +297,7 @@ fields:
     wave: 1
     type: string
     matcher: StringMatcher
+    json_ref: "STATIC::oPx - CAM::oPx - CAM|Lease Type & Tenant Expense Recapture|Lease Type"
     params:
       threshold: 0.9
 
@@ -275,6 +305,7 @@ fields:
     wave: 1
     type: json
     matcher: JSONMatcher
+    json_ref: "TABLE::oPx - CAM::oPx - CAM|Tenant Expense Recapture"
     params:
       programmatic_weight: 0.3
       llm_weight: 0.7
@@ -304,6 +335,7 @@ fields:
     wave: 1
     type: enum
     matcher: EnumMatcher
+    json_ref: "TABLE_FILTER::Opt - Misc::Opt - Misc|Right of First Offer or Refusal::Right of First Offer or Refusal::Right of First Offer (ROFO)::In Lease?"
     params:
       preset: "yes_no"
 
@@ -311,6 +343,7 @@ fields:
     wave: 1
     type: enum
     matcher: EnumMatcher
+    json_ref: "TABLE_FILTER::Opt - Misc::Opt - Misc|Right of First Offer or Refusal::Right of First Offer or Refusal::Right of First Refusal (ROFR)::In Lease?"
     params:
       preset: "yes_no"
 
@@ -318,6 +351,7 @@ fields:
     wave: 1
     type: enum
     matcher: EnumMatcher
+    json_ref: "TABLE_FILTER::Opt - Misc::Opt - Misc|Right of Contraction, Termination or Renewal::Right of Contraction, Termination or Renewal::Contraction::In Lease?"
     params:
       preset: "yes_no"
 
@@ -325,6 +359,7 @@ fields:
     wave: 1
     type: enum
     matcher: EnumMatcher
+    json_ref: "TABLE_FILTER::Opt - Misc::Opt - Misc|Right of Contraction, Termination or Renewal::Right of Contraction, Termination or Renewal::Termination::In Lease?"
     params:
       preset: "yes_no"
 
@@ -332,6 +367,7 @@ fields:
     wave: 1
     type: enum
     matcher: EnumMatcher
+    json_ref: "TABLE_FILTER::Opt - Misc::Opt - Misc|Right of Contraction, Termination or Renewal::Right of Contraction, Termination or Renewal::Renewal/Extension::In Lease?"
     params:
       preset: "yes_no_na"
 
@@ -339,6 +375,7 @@ fields:
     wave: 1
     type: enum
     matcher: EnumMatcher
+    json_ref: "TABLE_FILTER::Opt - Misc::Opt - Misc|Right of Expansion::Right of Expansion::Expansion::In Lease?"
     params:
       preset: "yes_no"
 
@@ -346,6 +383,7 @@ fields:
     wave: 1
     type: enum
     matcher: EnumMatcher
+    json_ref: "STATIC::Opt - Misc::Opt - Misc|Insurance|Insurance Required (Y/N)?"
     params:
       preset: "yes_no"
 
@@ -354,6 +392,7 @@ fields:
     wave: 1
     type: string
     matcher: StringMatcher
+    json_ref: "STATIC::Clauses::Clauses|Other Lease Clauses|Exclusive Use Article and/or Paragraph of Lease"
     params:
       threshold: 0.7
 
@@ -361,6 +400,7 @@ fields:
     wave: 1
     type: string
     matcher: StringMatcher
+    json_ref: "STATIC::Clauses::Clauses|Other Lease Clauses|Exclusive Use Description"
     params:
       threshold: 0.6
 
@@ -368,6 +408,7 @@ fields:
     wave: 1
     type: string
     matcher: StringMatcher
+    json_ref: "STATIC::Clauses::Clauses|Other Lease Clauses|Holdover Article and/or Paragraph of Lease"
     params:
       threshold: 0.7
 
@@ -375,6 +416,7 @@ fields:
     wave: 1
     type: string
     matcher: StringMatcher
+    json_ref: "STATIC::Clauses::Clauses|Other Lease Clauses|Holdover Description"
     params:
       threshold: 0.6
 
@@ -382,6 +424,7 @@ fields:
     wave: 1
     type: string
     matcher: StringMatcher
+    json_ref: "STATIC::Clauses::Clauses|Other Lease Clauses|Relocation Article and/or Paragraph of Lease"
     params:
       threshold: 0.7
 
@@ -389,6 +432,7 @@ fields:
     wave: 1
     type: string
     matcher: StringMatcher
+    json_ref: "STATIC::Clauses::Clauses|Other Lease Clauses|Relocation Description"
     params:
       threshold: 0.6
 
@@ -397,6 +441,7 @@ fields:
     wave: 1
     type: enum
     matcher: EnumMatcher
+    json_ref: "STATIC::Gen Info 1::Gen Info 1|Abstract Information|Abstract Purpose"
     params:
       valid_values:
         - "New Lease"
@@ -418,6 +463,7 @@ fields:
     wave: 2
     type: number
     matcher: NumberMatcher
+    json_ref: "STATIC::Gen Info 1::Gen Info 1|Property Information|Building SF"
     params: {}
 
   # Gen Info 1 - Tenant
@@ -425,6 +471,7 @@ fields:
     wave: 2
     type: string
     matcher: StringMatcher
+    json_ref: "STATIC::Gen Info 1::Gen Info 1|Tenant Information|DBA Name"
     params:
       threshold: 0.85
 
@@ -433,6 +480,7 @@ fields:
     wave: 2
     type: float
     matcher: FloatMatcher
+    json_ref: "STATIC::Gen Info 1::Gen Info 1|Premise Information|Building Pro-Rata %"
     params:
       tolerance: 0.0005
 
@@ -440,6 +488,7 @@ fields:
     wave: 2
     type: float
     matcher: FloatMatcher
+    json_ref: "STATIC::Gen Info 1::Gen Info 1|Premise Information|Project Pro-Rata %"
     params:
       tolerance: 0.0005
 
@@ -447,6 +496,7 @@ fields:
     wave: 2
     type: number
     matcher: NumberMatcher
+    json_ref: "STATIC::Gen Info 1::Gen Info 1|Premise Information|Total Premise Rentable Sq. Feet"
     params: {}
 
   # Gen Info 1 - Lease
@@ -454,6 +504,7 @@ fields:
     wave: 2
     type: date
     matcher: DateMatcher
+    json_ref: "STATIC::Gen Info 1::Gen Info 1|Lease Information|Execution Date"
     params: {}
 
   # Gen Info 2 - Deposits
@@ -461,6 +512,7 @@ fields:
     wave: 2
     type: float
     matcher: FloatMatcher
+    json_ref: "STATIC::Gen Info 2::Gen Info 2|Deposits|Security Deposit"
     params:
       tolerance: 0.01
 
@@ -468,6 +520,7 @@ fields:
     wave: 2
     type: enum
     matcher: EnumMatcher
+    json_ref: "STATIC::Gen Info 2::Gen Info 2|Deposits|Interest?"
     params:
       preset: "yes_no"
 
@@ -475,6 +528,7 @@ fields:
     wave: 2
     type: float
     matcher: FloatMatcher
+    json_ref: "STATIC::Gen Info 2::Gen Info 2|Deposits|Add 'l Deposit Required"
     params:
       tolerance: 0.01
 
@@ -482,6 +536,7 @@ fields:
     wave: 2
     type: enum
     matcher: EnumMatcher
+    json_ref: "MISSING"
     params:
       preset: "yes_no"
 
@@ -489,6 +544,7 @@ fields:
     wave: 2
     type: string
     matcher: StringMatcher
+    json_ref: "STATIC::Gen Info 2::Gen Info 2|Deposits|Comments/Interest Calculation Method"
     params:
       threshold: 0.6
 
@@ -497,6 +553,7 @@ fields:
     wave: 2
     type: float
     matcher: FloatMatcher
+    json_ref: "STATIC::Gen Info 2::Gen Info 2|Prepaid Rent|Prepaid Rent Amount"
     params:
       tolerance: 0.01
 
@@ -504,6 +561,7 @@ fields:
     wave: 2
     type: enum
     matcher: EnumMatcher
+    json_ref: "STATIC::Gen Info 2::Gen Info 2|Prepaid Rent|Month to Apply"
     params:
       valid_values:
         - "January"
@@ -523,6 +581,7 @@ fields:
     wave: 2
     type: enum
     matcher: EnumMatcher
+    json_ref: "STATIC::Gen Info 2::Gen Info 2|Prepaid Rent|Interest?"
     params:
       preset: "yes_no"
 
@@ -531,12 +590,14 @@ fields:
     wave: 2
     type: number
     matcher: NumberMatcher
+    json_ref: "STATIC::Gen Info 2::Gen Info 2|Letter of Credit/Lease Bond|Amount"
     params: {}
 
   loc_lb_beneficiary:
     wave: 2
     type: string
     matcher: StringMatcher
+    json_ref: "STATIC::Gen Info 2::Gen Info 2|Letter of Credit/Lease Bond|Beneficiary/Entity"
     params:
       threshold: 0.85
 
@@ -544,6 +605,7 @@ fields:
     wave: 2
     type: enum
     matcher: EnumMatcher
+    json_ref: "STATIC::Gen Info 2::Gen Info 2|Letter of Credit/Lease Bond|L-C/LB Auto Reduce?"
     params:
       preset: "yes_no"
 
@@ -551,6 +613,7 @@ fields:
     wave: 2
     type: date
     matcher: DateMatcher
+    json_ref: "STATIC::Gen Info 2::Gen Info 2|Letter of Credit/Lease Bond|L-C/LB Expiration Date"
     params: {}
 
   # Gen Info 2 - Guaranty
@@ -558,6 +621,7 @@ fields:
     wave: 2
     type: string
     matcher: StringMatcher
+    json_ref: "STATIC::Gen Info 2::Gen Info 2|Guaranty|Guarantor Name"
     params:
       threshold: 0.85
 
@@ -565,6 +629,7 @@ fields:
     wave: 2
     type: string
     matcher: StringMatcher
+    json_ref: "STATIC::Gen Info 2::Gen Info 2|Guaranty|Guaranty Amount"
     params:
       threshold: 0.6
 
@@ -572,6 +637,7 @@ fields:
     wave: 2
     type: string
     matcher: StringMatcher
+    json_ref: "STATIC::Gen Info 2::Gen Info 2|Guaranty|Nature of Guaranty"
     params:
       threshold: 0.6
 
@@ -579,6 +645,7 @@ fields:
     wave: 2
     type: string
     matcher: StringMatcher
+    json_ref: "STATIC::Gen Info 2::Gen Info 2|Guaranty|Guaranty Expiration Date"
     params:
       threshold: 0.7
 
@@ -587,6 +654,7 @@ fields:
     wave: 2
     type: float
     matcher: FloatMatcher
+    json_ref: "STATIC::Gen Info 3::Gen Info 3|Parking|Total Number of Parking Stalls Allocated Per Lease"
     params:
       tolerance: 0.1
 
@@ -595,6 +663,7 @@ fields:
     wave: 2
     type: string
     matcher: StringMatcher
+    json_ref: "STATIC::Gen Info 3::Gen Info 3|Storage|Monthly Rate"
     params:
       threshold: 0.7
 
@@ -602,12 +671,14 @@ fields:
     wave: 2
     type: number
     matcher: NumberMatcher
+    json_ref: "STATIC::Gen Info 3::Gen Info 3|Storage|Square Feet"
     params: {}
 
   storage_unit_number:
     wave: 2
     type: string
     matcher: StringMatcher
+    json_ref: "STATIC::Gen Info 3::Gen Info 3|Storage|Unit #"
     params:
       threshold: 1.0
 
@@ -616,6 +687,7 @@ fields:
     wave: 2
     type: string
     matcher: StringMatcher
+    json_ref: "STATIC::Gen Info 3::Gen Info 3|CPI Adjustments|CPI Name & Base Index"
     params:
       threshold: 0.7
 
@@ -624,6 +696,7 @@ fields:
     wave: 2
     type: enum
     matcher: EnumMatcher
+    json_ref: "STATIC::Gen Info 3::Gen Info 3|Percentage Rent|Sales Reported"
     params:
       valid_values:
         - "Annual"
@@ -636,6 +709,7 @@ fields:
     wave: 2
     type: json
     matcher: JSONMatcher
+    json_ref: "TABLE::Gen Info 3::Gen Info 3|Percentage Rent"
     params:
       programmatic_weight: 0.3
       llm_weight: 0.7
@@ -662,6 +736,7 @@ fields:
     wave: 2
     type: float
     matcher: FloatMatcher
+    json_ref: "TABLE::oPx - CAM::oPx - CAM|Tenant Expense Recapture::Base Year Gross Up %"
     params:
       tolerance: 0.001
 
@@ -669,6 +744,7 @@ fields:
     wave: 2
     type: float
     matcher: FloatMatcher
+    json_ref: "TABLE::oPx - CAM::oPx - CAM|Tenant Expense Recapture::Max % Inc."
     params:
       tolerance: 0.001
 
@@ -677,6 +753,7 @@ fields:
     wave: 2
     type: enum
     matcher: EnumMatcher
+    json_ref: "STATIC::oPx - CAM::oPx - CAM|Reconciliation/Audit Information|Right to Audit?"
     params:
       valid_values:
         - "Yes"
@@ -687,6 +764,7 @@ fields:
     wave: 2
     type: string
     matcher: StringMatcher
+    json_ref: "STATIC::oPx - CAM::oPx - CAM|Reconciliation/Audit Information|Reconciliation Due Date"
     params:
       threshold: 0.6
 
@@ -695,24 +773,28 @@ fields:
     wave: 2
     type: number
     matcher: NumberMatcher
+    json_ref: "STATIC::Opt - Misc::Opt - Misc|Insurance|General Liability (GL) Ins. Amt. Per Occurrence"
     params: {}
 
   gl_insurance_aggregate:
     wave: 2
     type: number
     matcher: NumberMatcher
+    json_ref: "STATIC::Opt - Misc::Opt - Misc|Insurance|GL Insurance Amt. Aggregate"
     params: {}
 
   insurance_term_start:
     wave: 2
     type: date
     matcher: DateMatcher
+    json_ref: "STATIC::Opt - Misc::Opt - Misc|Insurance|Insurance Term Start"
     params: {}
 
   tenant_property_insurance_required:
     wave: 2
     type: enum
     matcher: EnumMatcher
+    json_ref: "STATIC::Opt - Misc::Opt - Misc|Insurance|Is Tenant Property Insurance Required (Y/N)?"
     params:
       preset: "yes_no"
 
@@ -721,6 +803,7 @@ fields:
     wave: 2
     type: string
     matcher: StringMatcher
+    json_ref: "STATIC::Opt - Misc::Opt - Misc|Additional Property Contact Information|Tenant Legal Notice Name"
     params:
       threshold: 0.85
 
@@ -728,6 +811,7 @@ fields:
     wave: 2
     type: address
     matcher: AddressMatcher
+    json_ref: "STATIC::Opt - Misc::Opt - Misc|Additional Property Contact Information|Legal Notice Address"
     params:
       threshold: 0.7
 
@@ -735,6 +819,7 @@ fields:
     wave: 2
     type: string
     matcher: StringMatcher
+    json_ref: "STATIC::Opt - Misc::Opt - Misc|Additional Property Contact Information|Attention"
     params:
       threshold: 0.85
 
@@ -742,6 +827,7 @@ fields:
     wave: 2
     type: string
     matcher: StringMatcher
+    json_ref: "STATIC::Opt - Misc::Opt - Misc|Additional Property Contact Information|City/State/ZIP Code"
     params:
       threshold: 0.8
 
@@ -750,12 +836,14 @@ fields:
     wave: 2
     type: date
     matcher: DateMatcher
+    json_ref: "TABLE_FILTER::Opt - Misc::Opt - Misc|Right of Contraction, Termination or Renewal::Right of Contraction, Termination or Renewal::Renewal/Extension::Expiration Date"
     params: {}
 
   renewal_extension_who_exercises:
     wave: 2
     type: enum
     matcher: EnumMatcher
+    json_ref: "TABLE_FILTER::Opt - Misc::Opt - Misc|Right of Contraction, Termination or Renewal::Right of Contraction, Termination or Renewal::Renewal/Extension::Who Exercises or Initiates"
     params:
       valid_values:
         - "Tenant"
@@ -766,12 +854,14 @@ fields:
     wave: 2
     type: date
     matcher: DateMatcher
+    json_ref: "TABLE_FILTER::Opt - Misc::Opt - Misc|Right of Contraction, Termination or Renewal::Right of Contraction, Termination or Renewal::Termination::Expiration Date"
     params: {}
 
   termination_who_exercises:
     wave: 2
     type: enum
     matcher: EnumMatcher
+    json_ref: "TABLE_FILTER::Opt - Misc::Opt - Misc|Right of Contraction, Termination or Renewal::Right of Contraction, Termination or Renewal::Termination::Who Exercises or Initiates"
     params:
       valid_values:
         - "Tenant"
@@ -782,12 +872,14 @@ fields:
     wave: 2
     type: date
     matcher: DateMatcher
+    json_ref: "TABLE_FILTER::Opt - Misc::Opt - Misc|Right of First Offer or Refusal::Right of First Offer or Refusal::Right of First Offer (ROFO)::Expiration Date"
     params: {}
 
   rofo_ongoing:
     wave: 2
     type: enum
     matcher: EnumMatcher
+    json_ref: "TABLE_FILTER::Opt - Misc::Opt - Misc|Right of First Offer or Refusal::Right of First Offer or Refusal::Right of First Offer (ROFO)::Ongoing"
     params:
       preset: "yes_no"
 
@@ -796,6 +888,7 @@ fields:
     wave: 2
     type: string
     matcher: StringMatcher
+    json_ref: "STATIC::Opt - Misc::Opt - Misc|TI Allowance/Lease Incentives/Commission Information|Amortized TI"
     params:
       threshold: 0.6
 
@@ -804,6 +897,7 @@ fields:
     wave: 2
     type: enum
     matcher: EnumMatcher
+    json_ref: "STATIC::Rec Billings::Rec Billings|Recurring Billings|Is start date dependent on TI completion?"
     params:
       preset: "yes_no"
 
