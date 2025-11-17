@@ -22,12 +22,16 @@ class BaseMatcher(ABC):
         gold = self._extract(example, self.field_name)
         pred_val = self._extract(pred, self.field_name)
 
-        if gold is None and pred_val is None:
-            return dspy.Prediction(score=1.0, feedback=f"✓ {self.field_name}: Both None")
-        if gold is None:
-            return dspy.Prediction(score=0.0, feedback=f"✗ {self.field_name}: Hallucination")
-        if pred_val is None:
-            return dspy.Prediction(score=0.0, feedback=f"✗ {self.field_name}: Missing")
+        # Use _is_null() to handle both None and string representations ("null", "None", etc.)
+        gold_is_null = self._is_null(gold)
+        pred_is_null = self._is_null(pred_val)
+
+        if gold_is_null and pred_is_null:
+            return dspy.Prediction(score=1.0, feedback=f"✓ {self.field_name}: Both null")
+        if gold_is_null and not pred_is_null:
+            return dspy.Prediction(score=0.0, feedback=f"✗ {self.field_name}: Hallucination (predicted {str(pred_val)[:50]} when gold is null)")
+        if not gold_is_null and pred_is_null:
+            return dspy.Prediction(score=0.0, feedback=f"✗ {self.field_name}: Missing (expected {str(gold)[:50]}, got null)")
 
         score, feedback = self.match(gold, pred_val)
         return dspy.Prediction(score=score, feedback=feedback)
@@ -37,3 +41,25 @@ class BaseMatcher(ABC):
         if isinstance(obj, dict):
             return obj.get(field_name)
         return getattr(obj, field_name, None)
+
+    @staticmethod
+    def _is_null(val: Any) -> bool:
+        """
+        Check if a value is null/None/empty.
+
+        Handles:
+        - None
+        - "None", "null", "NULL", "Null"
+        - Empty string ""
+        - Empty list []
+        - Empty dict {}
+        """
+        if val is None:
+            return True
+        if isinstance(val, str):
+            s = val.strip().lower()
+            if s in ('none', 'null', 'n/a', 'na', '', 'missing', 'unknown'):
+                return True
+        if isinstance(val, (list, dict)) and len(val) == 0:
+            return True
+        return False

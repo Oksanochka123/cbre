@@ -1,17 +1,20 @@
 """Evaluator for optimized field extraction programs."""
 
-from typing import Any, Dict, List
+from typing import Any, Dict, List, Optional
+import logging
 
 import dspy
 import numpy as np
 
 from optimization.metrics import MatcherMetric
 
+logger = logging.getLogger(__name__)
+
 
 class FieldEvaluator:
     """Evaluator for optimized field extraction programs."""
 
-    def __init__(self, field_name: str, field_config: Dict[str, Any], judge_lm: dspy.LM = None):
+    def __init__(self, field_name: str, field_config: Dict[str, Any], judge_lm: Optional[dspy.LM] = None):
         """Initialize evaluator.
         
         Args:
@@ -55,9 +58,13 @@ class FieldEvaluator:
                     print("-" * 60)
 
             except Exception as e:
+                import traceback
                 scores.append(0.0)
                 error_msg = f"Error: {e}"
+                error_detail = traceback.format_exc()
                 feedbacks.append(error_msg)
+                # Always log errors, not just when verbose
+                logger.error(f"Example {idx + 1} evaluation failed: {error_msg}\n{error_detail}")
                 if verbose:
                     print(f"\nExample {idx + 1}: {error_msg}")
                     print("-" * 60)

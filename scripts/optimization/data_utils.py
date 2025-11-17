@@ -101,11 +101,14 @@ def json_to_dspy(
 ) -> Tuple[List[dspy.Example], List[dspy.Example], List[dspy.Example]]:
     """Convert JSON dataset to DSPy datasets.
     
+    If dataset has _split markers (from gen_data.py), uses those splits.
+    Otherwise, creates new splits based on train_frac/val_frac.
+    
     Args:
         json_path: Path to JSON file (list of dicts)
         text_col: Column containing document text
-        train_frac: Training set fraction
-        val_frac: Validation set fraction
+        train_frac: Training set fraction (used only if no _split markers)
+        val_frac: Validation set fraction (used only if no _split markers)
         
     Returns:
         (trainset, valset, testset)
@@ -116,6 +119,9 @@ def json_to_dspy(
     if not isinstance(data, list):
         raise ValueError("JSON dataset must be a list of records")
     
+    # Check if dataset has _split markers
+    has_splits = any('_split' in record for record in data)
+    
     examples = []
     
     for record in data:
@@ -124,7 +130,7 @@ def json_to_dspy(
             
         d = {"document_text": str(record.get(text_col, ""))}
         
-        # Copy all other fields
+        # Copy all other fields (including _split if present)
         for key, val in record.items():
             if key == text_col:
                 continue
@@ -140,17 +146,26 @@ def json_to_dspy(
         
         examples.append(dspy.Example(**d).with_inputs("document_text"))
     
-    # Split datasets
-    n = len(examples)
-    t_end = int(n * train_frac)
-    v_end = t_end + int(n * val_frac)
-    
-    trainset = examples[:t_end]
-    valset = examples[t_end:v_end]
-    testset = examples[v_end:]
-    
-    print(f"Dataset: {n} examples")
-    print(f"  Train: {len(trainset)}, Val: {len(valset)}, Test: {len(testset)}")
+    if has_splits:
+        # Use existing splits from gen_data.py
+        trainset = [ex for ex in examples if getattr(ex, '_split', None) == 'train']
+        valset = [ex for ex in examples if getattr(ex, '_split', None) == 'val']
+        testset = [ex for ex in examples if getattr(ex, '_split', None) == 'test']
+        
+        print(f"\nDataset: {len(examples)} examples (using existing splits)")
+        print(f"  Train: {len(trainset)}, Val: {len(valset)}, Test: {len(testset)}")
+    else:
+        # Create new splits
+        n = len(examples)
+        t_end = int(n * train_frac)
+        v_end = t_end + int(n * val_frac)
+        
+        trainset = examples[:t_end]
+        valset = examples[t_end:v_end]
+        testset = examples[v_end:]
+        
+        print(f"\nDataset: {n} examples (creating new splits)")
+        print(f"  Train: {len(trainset)}, Val: {len(valset)}, Test: {len(testset)}")
     
     return trainset, valset, testset
 

@@ -124,6 +124,12 @@ def semantic_field_match(gold_val: Any, pred_val: Any) -> float:
     return similarity * 0.5  # Max 0.5 for partial string matches
 
 
+"""
+Patch for scripts/json_metrics.py - evaluate_record_pair function
+
+REPLACE the evaluate_record_pair function (around line 119-178) with this version:
+"""
+
 def evaluate_record_pair(
     gold_rec: dict, pred_rec: dict, field_matchers: dict[str, Any] | None = None
 ) -> tuple[float, dict]:
@@ -135,41 +141,64 @@ def evaluate_record_pair(
         pred_rec: Predicted record
         field_matchers: Optional dict of {field_name: matcher} for compositional matching.
                        Each matcher should have a .match(gold, pred) -> (score, feedback) method.
-                       If provided, ALL fields must have a matcher defined (will raise ValueError if missing).
+                       Handles schema mismatches gracefully:
+                       - Missing fields (in schema but not in data): score 0
+                       - Extra fields (in data but not in schema): score 0
+                       - Schema inconsistencies are logged in feedback, not raised as errors
 
     Returns:
         score: float [0, 1]
-        details: dict with field-level breakdown
-
-    Raises:
-        ValueError: If field_matchers is provided but a field is missing a matcher
+        details: dict with field-level breakdown including schema_warnings
     """
     all_keys = set(gold_rec.keys()) | set(pred_rec.keys())
 
     if not all_keys:
-        return 1.0, {"field_scores": {}, "avg_score": 1.0}
+        return 1.0, {"field_scores": {}, "avg_score": 1.0, "schema_warnings": []}
 
     field_scores = {}
-    for key in all_keys:
-        gold_val = gold_rec.get(key)
-        pred_val = pred_rec.get(key)
-
-        # Use compositional matcher if provided
-        if field_matchers is not None:
-            if key not in field_matchers:
-                raise ValueError(
-                    f"Field '{key}' is missing from field_matchers. "
-                    f"When using field_matchers, ALL fields must have a matcher defined. "
-                    f"Available matchers: {list(field_matchers.keys())}"
-                )
-            matcher = field_matchers[key]
-            score, _ = matcher.match(gold_val, pred_val)
-            field_scores[key] = score
-        else:
-            # Fallback to simple exact matching when no matchers provided
+    schema_warnings = []
+    
+    # If using field_matchers, track schema fields
+    if field_matchers is not None:
+        schema_fields = set(field_matchers.keys())
+        
+        # Check for extra fields (hallucinated by LLM or in data but not in schema)
+        extra_fields = all_keys - schema_fields
+        if extra_fields:
+            schema_warnings.append(f"Extra fields not in schema: {sorted(extra_fields)}")
+            # Assign score 0 for extra fields
+            for key in extra_fields:
+                field_scores[key] = 0.0
+        
+        # Check for missing fields (in schema but not in data)
+        missing_in_gold = schema_fields - set(gold_rec.keys())
+        missing_in_pred = schema_fields - set(pred_rec.keys())
+        
+        if missing_in_gold:
+            schema_warnings.append(f"Fields missing in ground truth: {sorted(missing_in_gold)}")
+        if missing_in_pred:
+            schema_warnings.append(f"Fields missing in prediction: {sorted(missing_in_pred)}")
+        
+        # Evaluate only schema fields that exist
+        for key in schema_fields:
+            gold_val = gold_rec.get(key)
+            pred_val = pred_rec.get(key)
+            
+            # If field missing in either, score 0
+            if key not in gold_rec or key not in pred_rec:
+                field_scores[key] = 0.0
+            else:
+                matcher = field_matchers[key]
+                score, _ = matcher.match(gold_val, pred_val)
+                field_scores[key] = score
+    else:
+        # Fallback: no schema, evaluate all fields with simple matching
+        for key in all_keys:
+            gold_val = gold_rec.get(key)
+            pred_val = pred_rec.get(key)
             field_scores[key] = simple_field_match(gold_val, pred_val)
 
-    avg_score = sum(field_scores.values()) / len(field_scores)
+    avg_score = sum(field_scores.values()) / len(field_scores) if field_scores else 0.0
 
     details = {
         "field_scores": field_scores,
@@ -177,10 +206,10 @@ def evaluate_record_pair(
         "perfect_fields": sum(1 for s in field_scores.values() if s >= 0.99),
         "failed_fields": sum(1 for s in field_scores.values() if s == 0.0),
         "total_fields": len(field_scores),
+        "schema_warnings": schema_warnings,
     }
 
     return avg_score, details
-
 
 # ============================================================================
 # RECORD MATCHING (Hungarian Algorithm)

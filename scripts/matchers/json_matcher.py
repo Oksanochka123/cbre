@@ -61,7 +61,11 @@ class JSONMatcher(BaseMatcher):
         return matchers
 
     def match(self, gold: Any, pred: Any) -> tuple[float, str]:
-        from json_metrics import hybrid_json_score, json_match_score
+        from json_metrics import hybrid_json_score, json_match_score, parse_json_safe
+
+        # Parse data for value-showing feedback
+        gold_parsed = parse_json_safe(gold)
+        pred_parsed = parse_json_safe(pred)
 
         if self.judge_lm:
             score, details = hybrid_json_score(
@@ -76,23 +80,88 @@ class JSONMatcher(BaseMatcher):
             if "error" in prog_det:
                 return score, f"⚠ {self.field_name}: {prog_det['error']}"
 
-            n_matched = prog_det.get("n_matched", 0)
-            feedback = (
-                f"{'✓' if score >= 0.95 else '✗'} {self.field_name}:\n"
-                f"  Prog: {details['programmatic_score']:.2f}, "
-                f"LLM: {details['llm_score']:.2f}, Final: {score:.2f}\n"
-                f"  {prog_det['n_gold']}g/{prog_det['n_pred']}p/{n_matched}m"
-            )
+            feedback = self._build_detailed_feedback(score, details, prog_det)
         else:
             score, details = json_match_score(gold, pred, field_matchers=self.field_matchers)
             if "error" in details:
-                return score, f"⚠ {self.field_name}: {details['error']}"
+                return score, f"ERROR {self.field_name}: {details['error']}"
 
-            n_matched = details.get("n_matched", 0)
-            feedback = (
-                f"{'✓' if score >= 0.95 else '✗'} {self.field_name}:\n"
-                f"  Score: {score:.2f}\n"
-                f"  {details['n_gold']}g/{details['n_pred']}p/{n_matched}m"
-            )
+            feedback = self._build_detailed_feedback(score, details, details)
 
         return score, feedback
+
+    def _build_detailed_feedback(self, score: float, full_details: dict, prog_details: dict) -> str:
+        """Build concise, actionable feedback for optimization."""
+
+        n_gold = prog_details.get("n_gold", 0)
+        n_pred = prog_details.get("n_pred", 0)
+        n_matched = prog_details.get("n_matched", 0)
+
+        status = "PASS" if score >= 0.95 else "FAIL"
+        lines = [f"{status} {self.field_name}: {score:.3f}"]
+
+        # Add LLM reasoning if available (from hybrid scoring)
+        llm_reasoning = full_details.get("llm_reasoning")
+        if llm_reasoning and llm_reasoning != "No LLM judge provided":
+            lines.append(f"  LLM: {llm_reasoning}")
+
+        # Record count summary
+        lines.append(f"  Records: {n_gold} expected, {n_pred} extracted, {n_matched} matched")
+
+        # Count issues
+        if n_gold != n_pred:
+            diff = n_pred - n_gold
+            if diff < 0:
+                lines.append(f"  Missing {-diff} records - extract all table rows")
+            else:
+                lines.append(f"  Hallucinated {diff} extra records - verify table boundaries")
+
+        # Field-level details
+        record_details = prog_details.get("record_details", [])
+        if record_details and n_matched > 0:
+            matched_rec = next((r for r in record_details if r.get("similarity", 0) > 0), None)
+
+            if matched_rec and "details" in matched_rec:
+                field_scores = matched_rec["details"].get("field_scores", {})
+                failing = [(f, s) for f, s in field_scores.items() if s < 0.8]
+
+                if failing:
+                    failing.sort(key=lambda x: x[1])
+                    lines.append(f"  Failing fields ({len(failing)}/{len(field_scores)}):")
+
+                    # Show top 8 worst fields
+                    for field, fscore in failing[:8]:
+                        lines.append(f"    - {field}: {fscore:.2f}")
+
+                    if len(failing) > 8:
+                        lines.append(f"    - and {len(failing) - 8} more")
+
+        # Unmatched records
+        if n_matched < n_gold:
+            lines.append(f"  Unmatched gold records: {n_gold - n_matched}")
+        if n_matched < n_pred:
+            lines.append(f"  Unmatched pred records: {n_pred - n_matched} (hallucinations)")
+
+        # Priority actions
+        actions = []
+        if n_pred < n_gold:
+            actions.append(f"1. Extract all {n_gold} rows (missing {n_gold - n_pred})")
+        elif n_pred > n_gold:
+            actions.append(f"1. Remove {n_pred - n_gold} extra rows")
+
+        if record_details and n_matched > 0:
+            matched_rec = next((r for r in record_details if r.get("similarity", 0) > 0), None)
+            if matched_rec and "details" in matched_rec:
+                field_scores = matched_rec["details"].get("field_scores", {})
+                failing = [(f, s) for f, s in field_scores.items() if s < 0.8]
+                if failing:
+                    worst_field, worst_score = failing[0]
+                    actions.append(f"2. Fix '{worst_field}' field (score {worst_score:.2f})")
+
+        if score < 0.8:
+            actions.append("3. Verify schema field names match exactly")
+
+        if actions:
+            lines.append("  Actions: " + " | ".join(actions))
+
+        return "\n".join(lines)
