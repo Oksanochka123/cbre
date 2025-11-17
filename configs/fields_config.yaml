@@ -536,7 +536,7 @@ fields:
     wave: 2
     type: enum
     matcher: EnumMatcher
-    json_ref: "MISSING"
+    json_ref: "STATIC::Gen Info 2::Gen Info 2|Deposits|Interest?"
     params:
       preset: "yes_no"
 
