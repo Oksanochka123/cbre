@@ -40,9 +40,3 @@ documents:
   meta_file_suffix: "_meta.json"  # Suffix for metadata files (to exclude)
   file_separator: "\n\n{'='*80}\n\n"  # Separator between multiple documents
   include_filename: true  # Include filename in document text
-
-# Ground Truth Configuration (for evaluation)
-ground_truth:
-  csv_path: "data/dataset_annotated.csv"  # Path to ground truth CSV
-  source_column: "source_file"  # Column containing source file path
-  match_on_folder: true  # Match based on folder name instead of exact file path

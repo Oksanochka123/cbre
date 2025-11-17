@@ -1,4 +1,3 @@
-#!/usr/bin/env python3
 """
 Evaluation Script for Field Extraction
 
@@ -24,6 +23,18 @@ from pathlib import Path
 import yaml
 from components.json_ref_resolver import JsonRefResolver
 from matchers.matcher_registry import MatcherRegistry
+
+matcher_type_map = {
+    "StringMatcher": "string",
+    "DateMatcher": "date",
+    "NumberMatcher": "number",
+    "FloatMatcher": "float",
+    "BooleanMatcher": "boolean",
+    "EnumMatcher": "enum",
+    "PhoneMatcher": "phone",
+    "AddressMatcher": "address",
+    "JSONMatcher": "json",
+}
 
 
 class FieldEvaluator:
@@ -66,17 +77,6 @@ class FieldEvaluator:
 
             try:
                 # Map matcher class names to types
-                matcher_type_map = {
-                    "StringMatcher": "string",
-                    "DateMatcher": "date",
-                    "NumberMatcher": "number",
-                    "FloatMatcher": "float",
-                    "BooleanMatcher": "boolean",
-                    "EnumMatcher": "enum",
-                    "PhoneMatcher": "phone",
-                    "AddressMatcher": "address",
-                    "JSONMatcher": "json",
-                }
 
                 type_key = matcher_type_map.get(matcher_type, field_type)
                 matcher = MatcherRegistry.create(field_name, type_key, **params)
