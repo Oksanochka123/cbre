@@ -5,6 +5,8 @@ from typing import Any
 
 import dspy
 
+from components.constants import NULL_VALUES
+
 
 class BaseMatcher(ABC):
     """Base class for field matching."""
@@ -45,12 +47,11 @@ class BaseMatcher(ABC):
     @staticmethod
     def _is_null(val: Any) -> bool:
         """
-        Check if a value is null/None/empty.
+        Check if a value is null/None/empty using NULL_VALUES from constants.
 
         Handles:
         - None
-        - "None", "null", "NULL", "Null"
-        - Empty string ""
+        - Values in NULL_VALUES set (case-insensitive)
         - Empty list []
         - Empty dict {}
         """
@@ -58,7 +59,7 @@ class BaseMatcher(ABC):
             return True
         if isinstance(val, str):
             s = val.strip().lower()
-            if s in ('none', 'null', 'n/a', 'na', '', 'missing', 'unknown'):
+            if s in NULL_VALUES:
                 return True
         if isinstance(val, (list, dict)) and len(val) == 0:
             return True
