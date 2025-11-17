@@ -1,0 +1,12 @@
+{
+  "field_name": "storage_required",
+  "type": "enum",
+  "matcher": "EnumMatcher",
+  "json_ref": "STATIC::Gen Info 3::Gen Info 3|Storage|Required?",
+  "params": {
+    "preset": "yes_no"
+  },
+  "instructions": "Given the fields `document_text`, produce the fields `storage_required`.",
+  "instructions_length": 72,
+  "score": 0.9259259259259259
+}

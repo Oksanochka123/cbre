@@ -1,0 +1,20 @@
+{
+  "field_name": "late_fees_calculation_method",
+  "type": "enum",
+  "matcher": "EnumMatcher",
+  "json_ref": "STATIC::Gen Info 3::Gen Info 3|Late Fees|1st Late Fee Calculation Method",
+  "params": {
+    "valid_values": [
+      "Max % Allowed by Law",
+      "% Owed-Total",
+      "% Monthly Rent",
+      "Flat Amount",
+      "% Owed-Month",
+      "NA"
+    ],
+    "case_sensitive": false
+  },
+  "instructions": "Task\n- Using the input field document_text (a lease or policy excerpt), output a single classification string for late_fees_calculation_method that describes how late fees are calculated.\n\nInputs\n- document_text: A string that may be a full lease, an excerpt, or even be empty.\n\nOutput\n- late_fees_calculation_method: A single string from the controlled vocabulary below.\n- Do not output any other fields or reasoning. Output only the value of late_fees_calculation_method exactly as specified (case and punctuation must match).\n\nControlled vocabulary (use exact strings)\n- % Owed-Total — Late fee is calculated as a percentage of the unpaid/overdue amount (balance due, rent owed, etc.).\n- % Rent — Late fee is calculated as a percentage of the monthly/base rent amount (not specifically tied to only the unpaid balance).\n- Flat Fee — A single fixed dollar amount charged once when late.\n- Per Day $ — A fixed dollar amount that accrues per day late.\n- Per Day % — A percentage amount that accrues per day late.\n- Hybrid (Flat + Per Day $) — A flat dollar amount plus an additional per-day dollar amount.\n- Greater Of ($ vs %) — The fee is the greater of a specified dollar amount or a percentage.\n- None — The text explicitly states there is no late fee.\n\nMapping rules and cues\n- Map to % Owed-Total when you see phrases like:\n  - “X% of the unpaid rent”\n  - “X% of the balance due”\n  - “X% of the total amount owed”\n  - “X% of any installment that is late”\n  - “X% of rent due and unpaid”\n  - “X% of outstanding rent”\n- Map to % Rent when you see:\n  - “X% of the monthly rent,” “X% of base rent,” or a percentage explicitly tied to the monthly/base rent (not limited to unpaid balance).\n- Map to Flat Fee when you see:\n  - “a late fee of $X,” “a fixed late charge of $X,” with no per-day accrual.\n- Map to Per Day $ when you see:\n  - “$X per day,” “an additional $X each day late,” etc.\n- Map to Per Day % when you see:\n  - “X% per day,” “accrues at X% daily,” etc.\n- Map to Hybrid (Flat + Per Day $) when both a one-time flat amount and a per-day dollar accrual are present (e.g., “$50 plus $5 per day”).\n- Map to Greater Of ($ vs %) when phrased as:\n  - “the greater of $X or Y% (of rent/amount owed).”\n- Map to None only if the text clearly states no late fee or that late fees are prohibited.\n\nTie-breakers\n- If multiple methods are mentioned, choose the most specific structure. Examples:\n  - “$50 plus $5/day” → Hybrid (Flat + Per Day $)\n  - “Greater of $50 or 5%” → Greater Of ($ vs %)\n- If % is clearly applied to unpaid/overdue amounts, prefer % Owed-Total over % Rent.\n\nAbsent, ambiguous, or empty text\n- Do not output “Not determinable,” “Unknown,” or any free-form text.\n- If the document_text is empty, missing, or the method is ambiguous/unclear, default to: % Owed-Total\n\nFormatting requirements\n- Output only the exact classification string (no labels, no JSON, no explanations). For example:\n  % Owed-Total",
+  "instructions_length": 2927,
+  "score": 0.39709757834757825
+}

@@ -1,0 +1,10 @@
+{
+  "field_name": "rent_due_day",
+  "type": "number",
+  "matcher": "NumberMatcher",
+  "json_ref": "STATIC::Gen Info 3::Gen Info 3|Late Fees|1st Late Fee Rent Due Day",
+  "params": {},
+  "instructions": "Given the fields `document_text`, produce the fields `rent_due_day`.",
+  "instructions_length": 68,
+  "score": 1.0
+}

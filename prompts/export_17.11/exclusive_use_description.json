@@ -1,0 +1,12 @@
+{
+  "field_name": "exclusive_use_description",
+  "type": "string",
+  "matcher": "StringMatcher",
+  "json_ref": "STATIC::Clauses::Clauses|Other Lease Clauses|Exclusive Use Description",
+  "params": {
+    "threshold": 0.6
+  },
+  "instructions": "Given the fields `document_text`, produce the fields `exclusive_use_description`.",
+  "instructions_length": 81,
+  "score": 0.005925811656587845
+}

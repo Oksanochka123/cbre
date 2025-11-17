@@ -1,0 +1,95 @@
+field_name,accuracy,correct_docs,total_docs,json_ref,matcher
+abstract_purpose,0.2000,1,5,STATIC::Gen Info 1::Gen Info 1|Abstract Information|Abstract Purpose,EnumMatcher
+actual_lease_start_date,0.0000,0,5,STATIC::Gen Info 1::Gen Info 1|Lease Information|Actual Lease Start Date,DateMatcher
+additional_deposit_interest,0.2000,1,5,STATIC::Gen Info 2::Gen Info 2|Deposits|Interest?,EnumMatcher
+additional_deposit_required,0.8000,4,5,STATIC::Gen Info 2::Gen Info 2|Deposits|Add 'l Deposit Required,FloatMatcher
+billing_address,0.4000,2,5,STATIC::Gen Info 1::Gen Info 1|Billing Information|Billing Address,AddressMatcher
+billing_city,0.8000,4,5,STATIC::Gen Info 1::Gen Info 1|Billing Information|City,StringMatcher
+billing_phone,0.2000,1,5,STATIC::Gen Info 1::Gen Info 1|Billing Information|Billing Phone #,PhoneMatcher
+billing_state,1.0000,5,5,STATIC::Gen Info 1::Gen Info 1|Billing Information|State,StringMatcher
+billing_zip_code,0.8000,4,5,STATIC::Gen Info 1::Gen Info 1|Billing Information|Zip Code,StringMatcher
+building_prorata_pct,0.0000,0,5,STATIC::Gen Info 1::Gen Info 1|Premise Information|Building Pro-Rata %,FloatMatcher
+building_square_footage,0.0000,0,5,STATIC::Gen Info 1::Gen Info 1|Property Information|Building SF,NumberMatcher
+country,0.0000,0,5,STATIC::Gen Info 1::Gen Info 1|Property Information|Country,StringMatcher
+cpi_adjustments_required,0.0000,0,5,STATIC::Gen Info 3::Gen Info 3|CPI Adjustments|Required?,EnumMatcher
+cpi_name_base_index,1.0000,5,5,STATIC::Gen Info 3::Gen Info 3|CPI Adjustments|CPI Name & Base Index,StringMatcher
+dba_name,0.4000,2,5,STATIC::Gen Info 1::Gen Info 1|Tenant Information|DBA Name,StringMatcher
+deposit_required,0.0000,0,5,STATIC::Gen Info 2::Gen Info 2|Deposits|Required?,EnumMatcher
+deposits_comments,0.2000,1,5,STATIC::Gen Info 2::Gen Info 2|Deposits|Comments/Interest Calculation Method,StringMatcher
+exclusive_use_article_paragraph,0.0000,0,5,STATIC::Clauses::Clauses|Other Lease Clauses|Exclusive Use Article and/or Paragraph of Lease,StringMatcher
+exclusive_use_description,0.0000,0,5,STATIC::Clauses::Clauses|Other Lease Clauses|Exclusive Use Description,StringMatcher
+execution_date,0.0000,0,5,STATIC::Gen Info 1::Gen Info 1|Lease Information|Execution Date,DateMatcher
+expiration_date,0.0000,0,5,STATIC::Gen Info 1::Gen Info 1|Lease Information|Expiration Date,DateMatcher
+first_occupied,0.0000,0,5,STATIC::Gen Info 1::Gen Info 1|Lease Information|First Occupied,DateMatcher
+gl_insurance_aggregate,0.2000,1,5,STATIC::Opt - Misc::Opt - Misc|Insurance|GL Insurance Amt. Aggregate,NumberMatcher
+gl_insurance_per_occurrence,0.2000,1,5,STATIC::Opt - Misc::Opt - Misc|Insurance|General Liability (GL) Ins. Amt. Per Occurrence,NumberMatcher
+guarantor_amount,0.6000,3,5,STATIC::Gen Info 2::Gen Info 2|Guaranty|Guaranty Amount,StringMatcher
+guarantor_name,0.6000,3,5,STATIC::Gen Info 2::Gen Info 2|Guaranty|Guarantor Name,StringMatcher
+guaranty,0.8000,4,5,STATIC::Gen Info 2::Gen Info 2|Guaranty|Guaranty?,EnumMatcher
+guaranty_expiration_date,0.6000,3,5,STATIC::Gen Info 2::Gen Info 2|Guaranty|Guaranty Expiration Date,StringMatcher
+holdover_article_paragraph,0.2000,1,5,STATIC::Clauses::Clauses|Other Lease Clauses|Holdover Article and/or Paragraph of Lease,StringMatcher
+holdover_description,0.2000,1,5,STATIC::Clauses::Clauses|Other Lease Clauses|Holdover Description,StringMatcher
+insurance_required,0.8000,4,5,STATIC::Opt - Misc::Opt - Misc|Insurance|Insurance Required (Y/N)?,EnumMatcher
+insurance_term_start,1.0000,5,5,STATIC::Opt - Misc::Opt - Misc|Insurance|Insurance Term Start,DateMatcher
+late_fees_calculation_method,0.6000,3,5,STATIC::Gen Info 3::Gen Info 3|Late Fees|1st Late Fee Calculation Method,EnumMatcher
+late_fees_included,0.2000,1,5,STATIC::Gen Info 3::Gen Info 3|Late Fees|1st Late Fee Included in Late Fee,StringMatcher
+lease_commence,0.0000,0,5,STATIC::Gen Info 1::Gen Info 1|Lease Information|Lease Commence,DateMatcher
+legal_notice_address,0.6000,3,5,STATIC::Opt - Misc::Opt - Misc|Additional Property Contact Information|Legal Notice Address,AddressMatcher
+legal_notice_attention,0.8000,4,5,STATIC::Opt - Misc::Opt - Misc|Additional Property Contact Information|Attention,StringMatcher
+legal_notice_city_state_zip,0.6000,3,5,STATIC::Opt - Misc::Opt - Misc|Additional Property Contact Information|City/State/ZIP Code,StringMatcher
+legal_notice_name,0.6000,3,5,STATIC::Opt - Misc::Opt - Misc|Additional Property Contact Information|Tenant Legal Notice Name,StringMatcher
+lessee_name,0.6000,3,5,STATIC::Gen Info 1::Gen Info 1|Tenant Information|Lessee Name,StringMatcher
+letter_of_credit_or_lease_bond,0.8000,4,5,STATIC::Gen Info 2::Gen Info 2|Letter of Credit/Lease Bond|Letter of Credit/Lease Bond?,EnumMatcher
+loc_lb_amount,1.0000,5,5,STATIC::Gen Info 2::Gen Info 2|Letter of Credit/Lease Bond|Amount,NumberMatcher
+loc_lb_auto_reduce,1.0000,5,5,STATIC::Gen Info 2::Gen Info 2|Letter of Credit/Lease Bond|L-C/LB Auto Reduce?,EnumMatcher
+loc_lb_beneficiary,1.0000,5,5,STATIC::Gen Info 2::Gen Info 2|Letter of Credit/Lease Bond|Beneficiary/Entity,StringMatcher
+loc_lb_expiration_date,1.0000,5,5,STATIC::Gen Info 2::Gen Info 2|Letter of Credit/Lease Bond|L-C/LB Expiration Date,DateMatcher
+nature_of_guaranty,0.6000,3,5,STATIC::Gen Info 2::Gen Info 2|Guaranty|Nature of Guaranty,StringMatcher
+opt_contraction_in_lease,1.0000,5,5,"TABLE_FILTER::Opt - Misc::Opt - Misc|Right of Contraction, Termination or Renewal::Right of Contraction, Termination or Renewal::Contraction::In Lease?",EnumMatcher
+opt_expansion_in_lease,1.0000,5,5,TABLE_FILTER::Opt - Misc::Opt - Misc|Right of Expansion::Right of Expansion::Expansion::In Lease?,EnumMatcher
+opt_first_rofo_in_lease,1.0000,5,5,TABLE_FILTER::Opt - Misc::Opt - Misc|Right of First Offer or Refusal::Right of First Offer or Refusal::Right of First Offer (ROFO)::In Lease?,EnumMatcher
+opt_first_rofr_in_lease,1.0000,5,5,TABLE_FILTER::Opt - Misc::Opt - Misc|Right of First Offer or Refusal::Right of First Offer or Refusal::Right of First Refusal (ROFR)::In Lease?,EnumMatcher
+opt_termination_in_lease,1.0000,5,5,"TABLE_FILTER::Opt - Misc::Opt - Misc|Right of Contraction, Termination or Renewal::Right of Contraction, Termination or Renewal::Termination::In Lease?",EnumMatcher
+opx_base_year_gross_up_pct,1.0000,5,5,TABLE::oPx - CAM::oPx - CAM|Tenant Expense Recapture::Base Year Gross Up %,FloatMatcher
+opx_lease_type,0.2000,1,5,STATIC::oPx - CAM::oPx - CAM|Lease Type & Tenant Expense Recapture|Lease Type,StringMatcher
+opx_max_pct_inc,1.0000,5,5,TABLE::oPx - CAM::oPx - CAM|Tenant Expense Recapture::Max % Inc.,FloatMatcher
+opx_tenant_expense_recapture,0.2000,1,5,TABLE::oPx - CAM::oPx - CAM|Tenant Expense Recapture,JSONMatcher
+percentage_rent_required,0.0000,0,5,STATIC::Gen Info 3::Gen Info 3|Percentage Rent|Required?,EnumMatcher
+percentage_rent_sales_reported,0.8000,4,5,STATIC::Gen Info 3::Gen Info 3|Percentage Rent|Sales Reported,EnumMatcher
+percentage_rent_table,1.0000,5,5,TABLE::Gen Info 3::Gen Info 3|Percentage Rent,JSONMatcher
+premise_address,0.2000,1,5,STATIC::Gen Info 1::Gen Info 1|Premise Information|Address,AddressMatcher
+premise_city,0.0000,0,5,STATIC::Gen Info 1::Gen Info 1|Premise Information|City,StringMatcher
+premise_information_table,0.0000,0,5,TABLE::Gen Info 1::Gen Info 1|Premise Information,JSONMatcher
+premise_state,0.8000,4,5,STATIC::Gen Info 1::Gen Info 1|Premise Information|State,StringMatcher
+premise_zipcode,0.2000,1,5,STATIC::Gen Info 1::Gen Info 1|Premise Information|Zip Code,StringMatcher
+prepaid_rent_amount,0.2000,1,5,STATIC::Gen Info 2::Gen Info 2|Prepaid Rent|Prepaid Rent Amount,FloatMatcher
+prepaid_rent_interest,0.2000,1,5,STATIC::Gen Info 2::Gen Info 2|Prepaid Rent|Interest?,EnumMatcher
+prepaid_rent_month_to_apply,0.2000,1,5,STATIC::Gen Info 2::Gen Info 2|Prepaid Rent|Month to Apply,EnumMatcher
+prepaid_rent_required,0.0000,0,5,STATIC::Gen Info 2::Gen Info 2|Prepaid Rent|Required?,EnumMatcher
+project_prorata_pct,0.0000,0,5,STATIC::Gen Info 1::Gen Info 1|Premise Information|Project Pro-Rata %,FloatMatcher
+property_name,0.2000,1,5,STATIC::Gen Info 1::Gen Info 1|Property Information|Property Name,StringMatcher
+rec_billings,0.0000,0,5,TABLE::Rec Billings::Rec Billings|Recurring Billings,JSONMatcher
+rec_billings_ti_dependent,0.2000,1,5,STATIC::Rec Billings::Rec Billings|Recurring Billings|Is start date dependent on TI completion?,EnumMatcher
+reconciliation_due_date,0.6000,3,5,STATIC::oPx - CAM::oPx - CAM|Reconciliation/Audit Information|Reconciliation Due Date,StringMatcher
+reconciliation_right_to_audit,0.2000,1,5,STATIC::oPx - CAM::oPx - CAM|Reconciliation/Audit Information|Right to Audit?,EnumMatcher
+relocation_article_paragraph,0.0000,0,5,STATIC::Clauses::Clauses|Other Lease Clauses|Relocation Article and/or Paragraph of Lease,StringMatcher
+relocation_description,0.0000,0,5,STATIC::Clauses::Clauses|Other Lease Clauses|Relocation Description,StringMatcher
+renewal_extension_expiration_date,0.0000,0,5,"TABLE_FILTER::Opt - Misc::Opt - Misc|Right of Contraction, Termination or Renewal::Right of Contraction, Termination or Renewal::Renewal/Extension::Expiration Date",DateMatcher
+renewal_extension_in_lease,1.0000,5,5,"TABLE_FILTER::Opt - Misc::Opt - Misc|Right of Contraction, Termination or Renewal::Right of Contraction, Termination or Renewal::Renewal/Extension::In Lease?",EnumMatcher
+renewal_extension_who_exercises,1.0000,5,5,"TABLE_FILTER::Opt - Misc::Opt - Misc|Right of Contraction, Termination or Renewal::Right of Contraction, Termination or Renewal::Renewal/Extension::Who Exercises or Initiates",EnumMatcher
+rent_due_day,0.0000,0,5,STATIC::Gen Info 3::Gen Info 3|Late Fees|1st Late Fee Rent Due Day,NumberMatcher
+rofo_expiration_date,0.0000,0,5,TABLE_FILTER::Opt - Misc::Opt - Misc|Right of First Offer or Refusal::Right of First Offer or Refusal::Right of First Offer (ROFO)::Expiration Date,DateMatcher
+rofo_ongoing,1.0000,5,5,TABLE_FILTER::Opt - Misc::Opt - Misc|Right of First Offer or Refusal::Right of First Offer or Refusal::Right of First Offer (ROFO)::Ongoing,EnumMatcher
+security_deposit,0.2000,1,5,STATIC::Gen Info 2::Gen Info 2|Deposits|Security Deposit,FloatMatcher
+security_deposit_interest,0.2000,1,5,STATIC::Gen Info 2::Gen Info 2|Deposits|Interest?,EnumMatcher
+storage_monthly_rate,1.0000,5,5,STATIC::Gen Info 3::Gen Info 3|Storage|Monthly Rate,StringMatcher
+storage_required,0.0000,0,5,STATIC::Gen Info 3::Gen Info 3|Storage|Required?,EnumMatcher
+storage_square_feet,1.0000,5,5,STATIC::Gen Info 3::Gen Info 3|Storage|Square Feet,NumberMatcher
+storage_unit_number,1.0000,5,5,STATIC::Gen Info 3::Gen Info 3|Storage|Unit #,StringMatcher
+tenant_entity_type,0.8000,4,5,STATIC::Gen Info 1::Gen Info 1|Tenant Information|Tenant Entity Type,EnumMatcher
+tenant_property_insurance_required,0.4000,2,5,STATIC::Opt - Misc::Opt - Misc|Insurance|Is Tenant Property Insurance Required (Y/N)?,EnumMatcher
+termination_expiration_date,0.0000,0,5,"TABLE_FILTER::Opt - Misc::Opt - Misc|Right of Contraction, Termination or Renewal::Right of Contraction, Termination or Renewal::Termination::Expiration Date",DateMatcher
+termination_who_exercises,1.0000,5,5,"TABLE_FILTER::Opt - Misc::Opt - Misc|Right of Contraction, Termination or Renewal::Right of Contraction, Termination or Renewal::Termination::Who Exercises or Initiates",EnumMatcher
+ti_amortized,0.8000,4,5,STATIC::Opt - Misc::Opt - Misc|TI Allowance/Lease Incentives/Commission Information|Amortized TI,StringMatcher
+total_parking_stalls,0.6000,3,5,STATIC::Gen Info 3::Gen Info 3|Parking|Total Number of Parking Stalls Allocated Per Lease,FloatMatcher
+total_premise_rentable_sf,0.0000,0,5,STATIC::Gen Info 1::Gen Info 1|Premise Information|Total Premise Rentable Sq. Feet,NumberMatcher

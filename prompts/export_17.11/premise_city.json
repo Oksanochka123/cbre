@@ -1,0 +1,12 @@
+{
+  "field_name": "premise_city",
+  "type": "string",
+  "matcher": "StringMatcher",
+  "json_ref": "STATIC::Gen Info 1::Gen Info 1|Premise Information|City",
+  "params": {
+    "threshold": 0.9
+  },
+  "instructions": "Given the fields `document_text`, produce the fields `premise_city`.",
+  "instructions_length": 68,
+  "score": 1.0
+}
