@@ -1,0 +1,23 @@
+{
+  "field_name": "tenant_entity_type",
+  "type": "enum",
+  "matcher": "EnumMatcher",
+  "json_ref": "STATIC::Gen Info 1::Gen Info 1|Tenant Information|Tenant Entity Type",
+  "params": {
+    "valid_values": [
+      "Charitable Org",
+      "Other",
+      "Corporation",
+      "Inc.",
+      "LLP",
+      "Individual",
+      "Government",
+      "Partnership",
+      "LLC"
+    ],
+    "case_sensitive": false
+  },
+  "instructions": "Task: Given document_text containing one or more real estate lease-related documents (e.g., lease, amendments, estoppels, certificates), extract the tenant’s legal entity type and output it as a single, normalized short label.\n\nWhat to extract\n- Identify the legal entity type of the Tenant only (not the Landlord).\n- Use all provided pages in document_text (primary lease, amendments, estoppels, exhibits) to find the clearest statement of the Tenant’s legal form. Prefer explicit recitals/signature blocks like: “Tenant: X, a [State] [entity type]” or a corporate designator in the tenant’s name.\n\nNormalization rules (output must be EXACTLY one of these short labels; no extra words, punctuation, state names, or parentheses)\n- LLC: if you see “LLC”, “L.L.C.”, “limited liability company”, “Ltd. Liability Co.”, etc.\n  Example: “Mobily, LLC, a Texas limited liability company” → LLC\n- Corporation: if you see “Inc.”, “Incorporated”, “Corp.”, “Corporation”, “Co., Inc.”, “Company, Inc.”, or if the entity is clearly a corporation.\n  Example: “XYZ, Inc.” → Corporation\n- LP: if you see “LP”, “L.P.”, “limited partnership”.\n- LLP: if you see “LLP”, “L.L.P.”, “limited liability partnership”.\n- Partnership: if you see “general partnership”, “partnership” (and not LP/LLP).\n- Individual: if the tenant is a personal name with no business designator (e.g., “John A. Smith”) and documents do not indicate any registered entity.\n- Trust: if explicitly a trust.\n- Nonprofit: if explicitly a nonprofit corporation/organization and no other more specific label is required by ground truth.\n- Government: if a governmental body or agency is the tenant.\n\nImportant interpretation guidance\n- d/b/a doesn’t change entity type. Ignore the trade name. Example: “a Texas limited liability company d/b/a AT&T Authorized Retailer” → LLC.\n- If multiple documents differ, prefer the most explicit legal description (e.g., “a [State] [entity type]”) over name styling alone.\n- If the tenant name itself contains a clear designator (e.g., “... LLC”, “... Inc.”), that controls.\n- If no explicit entity type is stated AND the tenant name looks like a business (not a person) with no designator, default to Corporation.\n  Example: “AMADA SENIOR CARE MONMOUTH” (no designator, business-styled) → Corporation.\n- If no explicit entity type is stated AND the tenant name looks like a personal name, use Individual.\n- Do not output verbose phrases like “Texas limited liability company” or “Limited Liability Company (LLC)”. Only the exact normalized label (e.g., LLC).\n- Do not return landlord’s entity type by mistake; ensure you are labeling the Tenant.\n- Do not include explanations, reasons, or any extra text in the output—return only the label.\n\nEdge cases and synonyms mapping\n- LLC covers “LLC”, “L.L.C.”, and written-out “limited liability company”.\n- Corporation covers “Inc.”, “Incorporated”, “Corp.”, “Corporation”. “Company” alone is NOT sufficient unless paired with Inc./Corp. or clearly corporate context; if business-styled with no designator, still default to Corporation per rule above.\n- LP covers “Limited Partnership”; LLP covers “Limited Liability Partnership”.\n- For professional corporations (PC, P.C.) and PLC, unless the ground truth requires a distinct label, map to Corporation.\n\nOutput format\n- Return exactly one of the labels above (e.g., LLC, Corporation, LP, LLP, Partnership, Individual, Trust, Nonprofit, Government).\n- No additional characters, spaces before/after, or explanatory text.\n\nExamples\n- “Tenant: MOBILY, LLC, a Texas limited liability company d/b/a AT&T Authorized Retailer” → LLC\n- “Tenant: ALII INDUSTRIAL SERVICES LLC” → LLC\n- “Tenant: AMADA SENIOR CARE MONMOUTH” (no designator; business-styled) → Corporation",
+  "instructions_length": 3736,
+  "score": 0.7512624280481424
+}

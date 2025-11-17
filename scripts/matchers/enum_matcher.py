@@ -2,7 +2,7 @@
 
 from typing import Any
 
-from scripts.constants import NULL_VALUES
+from scripts.components.constants import NULL_VALUES
 from scripts.matchers.base_matcher import BaseMatcher
 
 

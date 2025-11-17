@@ -1,0 +1,12 @@
+{
+  "field_name": "deposit_required",
+  "type": "enum",
+  "matcher": "EnumMatcher",
+  "json_ref": "STATIC::Gen Info 2::Gen Info 2|Deposits|Required?",
+  "params": {
+    "preset": "yes_no"
+  },
+  "instructions": "Given the fields `document_text`, produce the fields `deposit_required`.",
+  "instructions_length": 72,
+  "score": 0.9629629629629629
+}

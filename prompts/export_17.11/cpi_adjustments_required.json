@@ -1,0 +1,12 @@
+{
+  "field_name": "cpi_adjustments_required",
+  "type": "enum",
+  "matcher": "EnumMatcher",
+  "json_ref": "STATIC::Gen Info 3::Gen Info 3|CPI Adjustments|Required?",
+  "params": {
+    "preset": "yes_no_na"
+  },
+  "instructions": "Given the fields `document_text`, produce the fields `cpi_adjustments_required`.",
+  "instructions_length": 80,
+  "score": 1.0
+}
