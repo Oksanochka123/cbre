@@ -2,8 +2,8 @@
 
 import re
 
-from constants import NULL_VALUES
-from matchers.base_matcher import BaseMatcher
+from scripts.components.constants import NULL_VALUES
+from scripts.matchers.base_matcher import BaseMatcher
 
 
 class PhoneMatcher(BaseMatcher):

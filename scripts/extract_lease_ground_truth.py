@@ -2,6 +2,7 @@ import argparse
 import json
 from pathlib import Path
 from typing import Any
+from zipfile import BadZipFile
 
 from openpyxl import load_workbook
 from openpyxl.utils import column_index_from_string
@@ -79,7 +80,12 @@ def _extract_tables(ws: Worksheet, tables_config: dict[str, dict[str, Any]]) -> 
 
 
 def extract_lease_data(excel_path: Path | str, config: dict[str, dict[str, Any]]) -> dict[str, dict[str, Any]]:
-    wb = load_workbook(excel_path, data_only=True)
+    try:
+        wb = load_workbook(excel_path, data_only=True)
+    except BadZipFile as e:
+        print(f"Error loading Excel file {excel_path}: {e}")
+        return {}
+
     result = {}
 
     for sheet_name, sheet_config in config.items():

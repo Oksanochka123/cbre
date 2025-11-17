@@ -1,0 +1,42 @@
+# Inference Configuration for Field Extraction
+
+# OpenAI API Configuration
+llm:
+  provider: "openai"
+  model: "gpt-4o-mini"  # GPT-4o-mini for cost-effective inference
+  temperature: 0.0  # Deterministic outputs for field extraction
+  max_tokens: 4096  # Maximum tokens for response
+  timeout: 60  # Timeout in seconds for API calls
+
+# Retry Configuration
+retry:
+  max_attempts: 3  # Maximum number of retry attempts on failure
+  initial_delay: 1.0  # Initial delay in seconds before first retry
+  backoff_factor: 2.0  # Exponential backoff multiplier
+  max_delay: 10.0  # Maximum delay between retries
+
+# Logging Configuration
+logging:
+  level: "INFO"  # Logging level: DEBUG, INFO, WARNING, ERROR
+  log_file: "logs/inference_{timestamp}.log"  # Log file path with timestamp
+  console_output: true  # Whether to also output logs to console
+
+# Processing Configuration
+processing:
+  batch_size: 1  # Number of leases to process in parallel (1 for sequential)
+  save_intermediate: true  # Save intermediate results after each lease
+  skip_existing: true  # Skip leases that already have output files
+
+# Input/Output Configuration
+paths:
+  prompts_dir: "prompts/final_export"  # Directory containing exported prompts
+  data_dir: "data/interim"  # Directory containing lease documents
+  output_dir: "data/predictions"  # Directory for inference outputs
+  system_prompt_file: null  # Optional system prompt file (null = empty system prompt)
+
+# Document Processing
+documents:
+  vlm_file_suffix: "_vlm.txt"  # Suffix for VLM text files
+  meta_file_suffix: "_meta.json"  # Suffix for metadata files (to exclude)
+  file_separator: "\n\n{'='*80}\n\n"  # Separator between multiple documents
+  include_filename: true  # Include filename in document text

@@ -1,13 +1,11 @@
 """Matcher-based metrics for DSPy optimization."""
 
 import logging
-import sys
-from pathlib import Path
 from typing import Any, Dict, Optional
 
 import dspy
 
-from matchers import MatcherRegistry
+from scripts.matchers import MatcherRegistry
 
 logger = logging.getLogger(__name__)
 
@@ -21,7 +19,6 @@ class MatcherMetric:
         field_config: Dict[str, Any],
         judge_lm: Optional[dspy.LM] = None,
         prediction_logger: Optional[Any] = None,
-        example_idx: int = 0,
     ):
         """Initialize metric from field config.
 
@@ -30,7 +27,6 @@ class MatcherMetric:
             field_config: Field configuration from YAML
             judge_lm: Optional LLM for JSON judging
             prediction_logger: Optional PredictionLogger for tracking predictions
-            example_idx: Current example index (updated before each evaluation)
         """
         self.field_name = field_name
         self.field_type = field_config["type"]

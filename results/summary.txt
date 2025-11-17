@@ -1,0 +1,45 @@
+================================================================================
+FIELD EXTRACTION EVALUATION SUMMARY
+================================================================================
+Generated: 2025-11-17 11:31:59
+
+OVERALL STATISTICS
+--------------------------------------------------------------------------------
+Total leases processed:     5
+Leases skipped:             0
+Total fields evaluated:     94
+Total field evaluations:    470
+Total correct:              214
+Overall accuracy:           0.4553 (45.53%)
+
+TOP 10 BEST PERFORMING FIELDS
+--------------------------------------------------------------------------------
+Field                                      Accuracy   Correct/Total
+--------------------------------------------------------------------------------
+billing_state                                1.0000             5/5
+opt_first_rofo_in_lease                      1.0000             5/5
+opt_first_rofr_in_lease                      1.0000             5/5
+opt_contraction_in_lease                     1.0000             5/5
+opt_termination_in_lease                     1.0000             5/5
+renewal_extension_in_lease                   1.0000             5/5
+opt_expansion_in_lease                       1.0000             5/5
+loc_lb_amount                                1.0000             5/5
+loc_lb_beneficiary                           1.0000             5/5
+loc_lb_auto_reduce                           1.0000             5/5
+
+BOTTOM 10 WORST PERFORMING FIELDS
+--------------------------------------------------------------------------------
+Field                                      Accuracy   Correct/Total
+--------------------------------------------------------------------------------
+relocation_article_paragraph                 0.0000             0/5
+relocation_description                       0.0000             0/5
+building_square_footage                      0.0000             0/5
+building_prorata_pct                         0.0000             0/5
+project_prorata_pct                          0.0000             0/5
+total_premise_rentable_sf                    0.0000             0/5
+execution_date                               0.0000             0/5
+renewal_extension_expiration_date            0.0000             0/5
+termination_expiration_date                  0.0000             0/5
+rofo_expiration_date                         0.0000             0/5
+
+================================================================================
