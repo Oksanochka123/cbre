@@ -1,16 +1,27 @@
-"""Numeric value matcher with currency format support."""
+"""Numeric value matcher with null handling and currency format support."""
 
 import re
 from typing import Any
 
-from scripts.matchers.base_matcher import BaseMatcher
+from matchers.base_matcher import BaseMatcher
 
 
 class NumberMatcher(BaseMatcher):
-    """Match numeric values with 0.5% margin and currency format support."""
+    """Match numeric values with null detection and currency format support."""
 
     def _parse_number(self, value: Any) -> float | None:
-        """Parse number with support for currency formats like USD 1M, $1M, etc."""
+        """
+        Parse number with support for currency formats and null values.
+
+        Supports:
+        - Plain numbers: 123, 123.45
+        - Currency: USD 1M, $1M, €1000
+        - Multipliers: 1K (thousand), 1M (million), 1B (billion)
+        - Null values: None, "None", "null"
+        """
+        if self._is_null(value):
+            return None
+
         try:
             s = str(value).strip().upper()
 
@@ -40,11 +51,23 @@ class NumberMatcher(BaseMatcher):
             return None
 
     def match(self, gold: Any, pred: Any) -> tuple[float, str]:
+        # Null handling first
+        gold_null = self._is_null(gold)
+        pred_null = self._is_null(pred)
+
+        if gold_null and pred_null:
+            return 1.0, f"✓ {self.field_name}: Both null"
+        if gold_null and not pred_null:
+            return 0.0, f"✗ {self.field_name}: Hallucination (predicted {pred} when gold is null)"
+        if not gold_null and pred_null:
+            return 0.0, f"✗ {self.field_name}: Missing (expected {gold}, got null)"
+
+        # Parse numbers
         g_num = self._parse_number(gold)
         p_num = self._parse_number(pred)
 
         if g_num is None or p_num is None:
-            return 0.0, f"✗ {self.field_name}: Parse error\n  {gold} → {pred}"
+            return 0.0, f"✗ {self.field_name}: Parse error | {gold} → {pred}"
 
         if abs(g_num - p_num) < 1e-6:
             return 1.0, f"✓ {self.field_name}: {gold} → {pred}"
