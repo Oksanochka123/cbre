@@ -1,4 +1,5 @@
 import argparse
+import asyncio
 import logging
 import os
 import shutil
@@ -58,7 +59,7 @@ class InferenceRunner:
             api_key=api_key,
             model=llm_config.get("model", "gpt-4o-mini"),
             temperature=llm_config.get("temperature", 0.0),
-            max_tokens=llm_config.get("max_tokens", 4096),
+            max_tokens=llm_config.get("max_completion_tokens", 4096),
             timeout=llm_config.get("timeout", 60),
             max_retries=retry_config.get("max_attempts", 3),
             initial_delay=retry_config.get("initial_delay", 1.0),
@@ -159,7 +160,7 @@ class InferenceRunner:
             logging.error(f"Error loading system prompt from {path}: {e}")
             return None
 
-    def process_lease(
+    async def process_lease(
         self,
         lease_folder: Path,
         prompts_data: dict,
@@ -208,9 +209,11 @@ class InferenceRunner:
 
         # Run inference for all fields
         logging.info("Running LLM inference...")
-        field_responses = self.llm_client.batch_call(
+        max_concurrent = self.config.get("llm", {}).get("max_concurrent", 10)
+        field_responses = await self.llm_client.batch_call_async(
             prompts=inference_prompts,
             system_prompt=self.system_prompt,
+            max_concurrent=max_concurrent,
         )
 
         # Build structured output
@@ -241,7 +244,7 @@ class InferenceRunner:
 
         return success
 
-    def run(self):
+    async def run(self):
         """Run inference on all lease folders."""
         logging.info("=" * 80)
         logging.info("STARTING FIELD EXTRACTION INFERENCE")
@@ -265,13 +268,16 @@ class InferenceRunner:
             logging.info(f"\nProcessing lease {idx}/{total_leases}")
 
             try:
-                success = self.process_lease(lease_folder, prompts_data)
+                success = await self.process_lease(lease_folder, prompts_data)
                 if success:
                     successful += 1
                 else:
                     failed += 1
             except Exception as e:
-                logging.error(f"Unexpected error processing {lease_folder.name}: {e}", exc_info=True)
+                logging.error(
+                    f"Unexpected error processing {lease_folder.name}: {e}",
+                    exc_info=True,
+                )
                 failed += 1
 
         # Print summary
@@ -350,7 +356,7 @@ Examples:
     # Run inference
     try:
         runner = InferenceRunner(config)
-        success = runner.run()
+        success = asyncio.run(runner.run())
         sys.exit(0 if success else 1)
 
     except Exception as e:

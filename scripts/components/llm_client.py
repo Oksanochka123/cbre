@@ -1,9 +1,10 @@
 """LLM Client with retry logic for field extraction inference."""
 
+import asyncio
 import logging
 import time
 
-from openai import OpenAI
+from openai import AsyncOpenAI, OpenAI
 
 logger = logging.getLogger(__name__)
 
@@ -37,6 +38,7 @@ class LLMClient:
             max_delay: Maximum delay between retries (seconds)
         """
         self.client = OpenAI(api_key=api_key, timeout=timeout)
+        self.async_client = AsyncOpenAI(api_key=api_key, timeout=timeout)
         self.model = model
         self.temperature = temperature
         self.max_tokens = max_tokens
@@ -81,7 +83,7 @@ class LLMClient:
                     model=self.model,
                     messages=messages,
                     temperature=self.temperature,
-                    max_tokens=self.max_tokens,
+                    max_completion_tokens=self.max_tokens,
                 )
 
                 # Extract the response text
@@ -156,5 +158,116 @@ class LLMClient:
 
         successful = sum(1 for v in results.values() if v is not None)
         logger.info(f"Batch inference complete. Successful: {successful}/{total}")
+
+        return results
+
+    async def call_async(
+        self,
+        prompt: str,
+        system_prompt: str | None = None,
+        field_name: str | None = None,
+    ) -> str | None:
+        """Make an async LLM API call with retry logic.
+
+        Args:
+            prompt: The user prompt/task
+            system_prompt: Optional system prompt
+            field_name: Optional field name for logging
+
+        Returns:
+            The LLM response text, or None if all retries failed
+        """
+        messages = []
+
+        # Add system message if provided
+        if system_prompt:
+            messages.append({"role": "system", "content": system_prompt})
+
+        # Add user message
+        messages.append({"role": "user", "content": prompt})
+
+        # Attempt the call with retries
+        for attempt in range(self.max_retries):
+            try:
+                logger.debug(f"Attempt {attempt + 1}/{self.max_retries} for field: {field_name or 'unknown'}")
+
+                response = await self.async_client.chat.completions.create(
+                    model=self.model,
+                    messages=messages,
+                    temperature=self.temperature,
+                    max_completion_tokens=self.max_tokens,
+                )
+
+                # Extract the response text
+                result = response.choices[0].message.content
+
+                logger.debug(f"Successfully received response for field: {field_name or 'unknown'}")
+                return result
+
+            except Exception as e:
+                logger.warning(
+                    f"Attempt {attempt + 1}/{self.max_retries} failed for field " f"'{field_name or 'unknown'}': {e}"
+                )
+
+                # If this was the last attempt, give up
+                if attempt == self.max_retries - 1:
+                    logger.error(
+                        f"All {self.max_retries} attempts failed for field " f"'{field_name or 'unknown'}': {e}"
+                    )
+                    return None
+
+                # Calculate delay with exponential backoff
+                delay = min(self.initial_delay * (self.backoff_factor**attempt), self.max_delay)
+                logger.info(f"Retrying in {delay:.1f} seconds...")
+                await asyncio.sleep(delay)
+
+        return None
+
+    async def batch_call_async(
+        self,
+        prompts: dict[str, str],
+        system_prompt: str | None = None,
+        max_concurrent: int = 10,
+    ) -> dict[str, str | None]:
+        """Make multiple async LLM calls for different fields with concurrency control.
+
+        Args:
+            prompts: Dictionary mapping field names to prompts
+            system_prompt: Optional system prompt to use for all calls
+            max_concurrent: Maximum number of concurrent API calls
+
+        Returns:
+            Dictionary mapping field names to responses
+        """
+        total = len(prompts)
+        logger.info(f"Starting async batch inference for {total} fields " f"(max concurrent: {max_concurrent})")
+
+        # Use semaphore to limit concurrent requests
+        semaphore = asyncio.Semaphore(max_concurrent)
+        completed = 0
+
+        async def process_field(field_name: str, prompt: str) -> tuple[str, str | None]:
+            nonlocal completed
+            async with semaphore:
+                response = await self.call_async(
+                    prompt=prompt,
+                    system_prompt=system_prompt,
+                    field_name=field_name,
+                )
+                completed += 1
+                logger.info(f"Processed field {completed}/{total}: {field_name}")
+                return field_name, response
+
+        # Create tasks for all fields
+        tasks = [process_field(field_name, prompt) for field_name, prompt in prompts.items()]
+
+        # Run all tasks concurrently
+        results_list = await asyncio.gather(*tasks)
+
+        # Convert to dictionary
+        results = dict(results_list)
+
+        successful = sum(1 for v in results.values() if v is not None)
+        logger.info(f"Async batch inference complete. Successful: {successful}/{total}")
 
         return results
