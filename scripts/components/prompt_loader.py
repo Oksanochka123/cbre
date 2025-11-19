@@ -84,10 +84,11 @@ class PromptLoader:
         field_name: str,
         document_text: str,
         prompt_data: dict | None = None,
-    ) -> str | None:
-        """Build the complete inference prompt for a field.
+    ) -> dict | None:
+        """Build the complete inference prompt for a field using DSPy ChatAdapter format.
 
-        Combines the field's instruction prompt with the document text.
+        Uses the pre-computed final_prompt from the exported data, which follows
+        DSPy ChatAdapter formatting with separate system and user messages.
 
         Args:
             field_name: Name of the field
@@ -95,7 +96,7 @@ class PromptLoader:
             prompt_data: Optional pre-loaded prompt data (will load if not provided)
 
         Returns:
-            Complete prompt string, or None if prompt not available
+            Dictionary with 'system' and 'user' messages, or None if prompt not available
         """
         if prompt_data is None:
             prompt_data = self.load_prompt(field_name)
@@ -104,14 +105,50 @@ class PromptLoader:
             logger.warning(f"Cannot build prompt for {field_name}: prompt data not found")
             return None
 
-        # Extract the instructions
+        # Check for final_prompt
+        final_prompt = prompt_data.get("final_prompt")
+        lease_document_text = "Lease Document Text:`````\n\n" + document_text + "`````"
+        if final_prompt is not None:
+            # Handle new string format (single combined prompt)
+            if isinstance(final_prompt, str):
+                # Replace placeholder with actual document text
+                user_message = final_prompt.replace("{document_text}", lease_document_text)
+
+                logger.debug(f"Built inference prompt for {field_name}, " f"length: {len(user_message)} chars")
+
+                return {
+                    "system": None,
+                    "user": user_message,
+                }
+
+            # Handle legacy dict format with system/user_template
+            elif isinstance(final_prompt, dict):
+                system_msg = final_prompt.get("system")
+                user_tmpl = final_prompt.get("user_template")
+
+                if system_msg and user_tmpl:
+                    # Use the DSPy ChatAdapter formatted prompt
+                    # Replace placeholder with actual document text
+                    user_message = user_tmpl.replace("{document_text}", document_text)
+
+                    logger.debug(
+                        f"Built DSPy-formatted inference prompt for {field_name}, "
+                        f"system: {len(system_msg)} chars, user: {len(user_message)} chars"
+                    )
+
+                    return {
+                        "system": system_msg,
+                        "user": user_message,
+                    }
+
+        # Fallback to legacy format for backward compatibility
         instructions = prompt_data.get("instructions", "")
         if not instructions:
             logger.warning(f"No instructions found in prompt for {field_name}")
             return None
 
-        # Build the complete prompt with clear separators
-        prompt = f"""# TASK INSTRUCTIONS
+        # Build legacy format as single user message
+        user_message = f"""# TASK INSTRUCTIONS
 
 {instructions}
 
@@ -121,18 +158,21 @@ class PromptLoader:
 
 # YOUR RESPONSE
 
-Please extract the requested information from the document text above according to the task instructions.
+Please extract the requested information from the document above.
 """
 
-        logger.debug(f"Built inference prompt for {field_name}, " f"length: {len(prompt)} chars")
+        logger.debug(f"Built legacy inference prompt for {field_name}, " f"length: {len(user_message)} chars")
 
-        return prompt
+        return {
+            "system": None,
+            "user": user_message,
+        }
 
     def build_all_inference_prompts(
         self,
         document_text: str,
         prompts_data: dict[str, dict] | None = None,
-    ) -> dict[str, str]:
+    ) -> dict[str, dict]:
         """Build inference prompts for all available fields.
 
         Args:
@@ -140,7 +180,7 @@ Please extract the requested information from the document text above according 
             prompts_data: Optional pre-loaded prompts data (will load if not provided)
 
         Returns:
-            Dictionary mapping field names to complete prompts
+            Dictionary mapping field names to prompt dicts with 'system' and 'user' keys
         """
         if prompts_data is None:
             prompts_data = self.load_all_prompts()

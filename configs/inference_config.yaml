@@ -3,8 +3,7 @@
 # OpenAI API Configuration
 llm:
   provider: "openai"
-  model: "gpt-4o-mini"  # GPT-4o-mini for cost-effective inference
-  temperature: 0.0  # Deterministic outputs for field extraction
+  model: "gpt-5"  # GPT-4o-mini for cost-effective inference
   max_tokens: 4096  # Maximum tokens for response
   timeout: 60  # Timeout in seconds for API calls
 
