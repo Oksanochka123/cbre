@@ -82,7 +82,6 @@ class LLMClient:
                 response = self.client.chat.completions.create(
                     model=self.model,
                     messages=messages,
-                    temperature=self.temperature,
                     max_completion_tokens=self.max_tokens,
                 )
 
@@ -194,7 +193,6 @@ class LLMClient:
                 response = await self.async_client.chat.completions.create(
                     model=self.model,
                     messages=messages,
-                    temperature=self.temperature,
                     max_completion_tokens=self.max_tokens,
                 )
 
@@ -202,6 +200,7 @@ class LLMClient:
                 result = response.choices[0].message.content
 
                 logger.debug(f"Successfully received response for field: {field_name or 'unknown'}")
+
                 return result
 
             except Exception as e:
@@ -225,15 +224,17 @@ class LLMClient:
 
     async def batch_call_async(
         self,
-        prompts: dict[str, str],
+        prompts: dict[str, str | dict],
         system_prompt: str | None = None,
         max_concurrent: int = 10,
     ) -> dict[str, str | None]:
         """Make multiple async LLM calls for different fields with concurrency control.
 
         Args:
-            prompts: Dictionary mapping field names to prompts
-            system_prompt: Optional system prompt to use for all calls
+            prompts: Dictionary mapping field names to prompts. Each prompt can be:
+                     - A string (legacy format, uses system_prompt parameter)
+                     - A dict with 'system' and 'user' keys (new DSPy format)
+            system_prompt: Optional fallback system prompt for legacy string prompts
             max_concurrent: Maximum number of concurrent API calls
 
         Returns:
@@ -246,16 +247,27 @@ class LLMClient:
         semaphore = asyncio.Semaphore(max_concurrent)
         completed = 0
 
-        async def process_field(field_name: str, prompt: str) -> tuple[str, str | None]:
+        async def process_field(field_name: str, prompt: str | dict) -> tuple[str, str | None]:
             nonlocal completed
             async with semaphore:
+                # Handle both new dict format and legacy string format
+                if isinstance(prompt, dict):
+                    # New format: prompt is a dict with 'system' and 'user' keys
+                    field_system_prompt = prompt.get("system")
+                    user_prompt = prompt.get("user", "")
+                else:
+                    # Legacy format: prompt is a string
+                    field_system_prompt = system_prompt
+                    user_prompt = prompt
+
                 response = await self.call_async(
-                    prompt=prompt,
-                    system_prompt=system_prompt,
+                    prompt=user_prompt,
+                    system_prompt=field_system_prompt,
                     field_name=field_name,
                 )
                 completed += 1
                 logger.info(f"Processed field {completed}/{total}: {field_name}")
+                logger.info(f"Response for field {field_name}: {response}")
                 return field_name, response
 
         # Create tasks for all fields
