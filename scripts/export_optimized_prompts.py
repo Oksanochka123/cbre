@@ -2,6 +2,7 @@ import argparse
 import json
 import logging
 import sys
+import textwrap
 from datetime import datetime
 from pathlib import Path
 from typing import Any
@@ -48,6 +49,127 @@ Each output file has the following structure:
 # Configure logging
 logging.basicConfig(level=logging.INFO, format="%(asctime)s - %(levelname)s - %(message)s")
 logger = logging.getLogger(__name__)
+
+
+def load_optimized_program(field_name: str, logs_dir: Path) -> dict[str, Any]:
+    """Load the optimized DSPy program JSON for a specific field.
+
+    Args:
+        field_name: Name of the field
+        logs_dir: Path to the logs directory containing field subdirectories
+
+    Returns:
+        Dictionary containing the optimized program data
+
+    Raises:
+        FileNotFoundError: If optimized program file doesn't exist
+    """
+    program_file = logs_dir / field_name / f"optimized_{field_name}.json"
+
+    if not program_file.exists():
+        raise FileNotFoundError(f"Optimized program not found for field '{field_name}': {program_file}")
+
+    logger.debug(f"Loading optimized program from {program_file}")
+
+    with open(program_file) as f:
+        program_data = json.load(f)
+
+    return program_data
+
+
+def format_inference_prompt(program_data: dict[str, Any]) -> dict[str, Any]:
+    """Format an inference-ready prompt from the optimized program data.
+
+    Builds a clean prompt without DSPy markers that can be used directly for inference.
+    The prompt includes:
+    - Field description (data type, examples)
+    - Placeholder structure for document_text
+    - Task objective (optimized instructions)
+    - Few-shot demos if available
+
+    Args:
+        program_data: The loaded optimized program JSON data
+
+    Returns:
+        Dictionary with 'system', 'user_template', and 'combined' keys
+    """
+    sig_data = program_data.get("predict", {}).get("signature", {})
+    demos = program_data.get("predict", {}).get("demos", [])
+
+    instructions = sig_data.get("instructions", "")
+    fields_data = sig_data.get("fields", [])
+
+    # Parse fields to identify the main output field (not reasoning)
+    output_field_description = ""
+    output_field_name = ""
+
+    for field_info in fields_data:
+        prefix = field_info.get("prefix", "")
+        description = field_info.get("description", "")
+
+        # Skip reasoning field and document_text input field
+        if prefix.startswith("Reasoning:"):
+            continue
+        if prefix.endswith(":"):
+            field_name = prefix[:-1].lower().replace(" ", "_")
+            if field_name == "document_text":
+                continue
+            # This is the main output field
+            output_field_description = description
+            output_field_name = field_name
+            break
+
+    # Build system prompt
+    system_parts = []
+
+    # Add output field description (data type, examples, null handling)
+    if output_field_description:
+        system_parts.append(output_field_description)
+
+    # Add structure section
+    system_parts.append(
+        "All interactions will be structured in the following way, " "with the appropriate values filled in."
+    )
+    system_parts.append("")
+    system_parts.append("{document_text}")
+
+    # Add task objective with indented instructions
+    indented_instructions = textwrap.indent(instructions, " " * 8)
+    system_parts.append(f"\nIn adhering to this structure, your objective is: \n" f"{indented_instructions}")
+
+    system_message = "\n".join(system_parts)
+
+    # Build user template
+    user_parts = []
+
+    # Add few-shot demos if available
+    if demos:
+        for i, demo in enumerate(demos):
+            user_parts.append(f"--- Example {i + 1} ---")
+            if "document_text" in demo:
+                # Include full demo document or truncate if too long
+                doc_text = demo["document_text"]
+                if len(doc_text) > 2000:
+                    doc_text = doc_text[:2000] + "..."
+                user_parts.append(f"Document:\n{doc_text}")
+
+            # Add the expected output
+            if output_field_name and output_field_name in demo:
+                expected_value = demo[output_field_name]
+                user_parts.append(f"\nExpected {output_field_name}: {expected_value}")
+            user_parts.append("")
+
+        user_parts.append("--- Now extract from the following document ---")
+        user_parts.append("")
+
+    user_parts.append("{document_text}")
+
+    user_message = "\n".join(user_parts)
+
+    # Create combined single string version
+    combined = f"{system_message}\n\n{user_message}"
+
+    return combined
 
 
 def load_fields_config(config_path: Path) -> dict[str, Any]:
@@ -104,39 +226,48 @@ def load_gepa_results(field_name: str, logs_dir: Path) -> dict[str, Any]:
     return results
 
 
-def extract_best_prompt(field_name: str, gepa_results: dict[str, Any], field_config: dict[str, Any]) -> dict[str, Any]:
+def extract_best_prompt(
+    field_name: str,
+    gepa_results: dict[str, Any],
+    field_config: dict[str, Any],
+    program_data: dict[str, Any],
+) -> dict[str, Any]:
     """Extract the best-performing prompt and its metadata.
 
     Args:
         field_name: Name of the field
         gepa_results: GEPA results dictionary
         field_config: Configuration for this field from fields_config.yaml
+        program_data: The optimized DSPy program data
 
     Returns:
-        Dictionary with field metadata and best prompt
+        Dictionary with field metadata, best prompt, signature data, and formatted prompts
     """
-    best_idx = gepa_results.get("best_idx")
-
-    if best_idx is None:
-        raise ValueError(f"No best_idx found in GEPA results for field '{field_name}'")
-
-    # Find the candidate with the best index
+    # Get candidates and find the one with the largest index (last optimization iteration)
     candidates = gepa_results.get("candidate_instructions", [])
-    best_candidate = None
 
-    for candidate in candidates:
-        if candidate.get("index") == best_idx:
-            best_candidate = candidate
-            break
+    if not candidates:
+        raise ValueError(f"No candidate_instructions found in GEPA results for field '{field_name}'")
 
-    if best_candidate is None:
-        raise ValueError(f"Could not find candidate with index {best_idx} for field '{field_name}'")
+    # Find the candidate with the largest index
+    best_candidate = max(candidates, key=lambda c: c.get("index", 0))
 
     # Extract field metadata from config
     field_type = field_config.get("type", "unknown")
     matcher = field_config.get("matcher", "unknown")
     json_ref = field_config.get("json_ref", "")
     params = field_config.get("params", {})
+
+    # Extract signature data from the optimized program
+    signature_data = program_data.get("predict", {}).get("signature", {})
+    demos = program_data.get("predict", {}).get("demos", [])
+
+    # Format inference-ready prompt from program data
+    try:
+        final_prompt = format_inference_prompt(program_data)
+    except Exception as e:
+        logger.warning(f"Failed to format inference prompt for {field_name}: {e}")
+        final_prompt = ""
 
     # Build output structure
     output = {
@@ -148,6 +279,10 @@ def extract_best_prompt(field_name: str, gepa_results: dict[str, Any], field_con
         "instructions": best_candidate.get("instructions", ""),
         "instructions_length": best_candidate.get("instruction_length", 0),
         "score": best_candidate.get("score", 0.0),
+        "index": best_candidate.get("index", 0),
+        "signature": signature_data,
+        "demos": demos,
+        "final_prompt": final_prompt,
     }
 
     return output
@@ -212,8 +347,11 @@ def process_optimization_logs(input_dir: Path, config_path: Path, output_dir: Pa
             # Load GEPA results
             gepa_results = load_gepa_results(field_name, logs_dir)
 
-            # Extract best prompt
-            field_data = extract_best_prompt(field_name, gepa_results, field_config)
+            # Load optimized program
+            program_data = load_optimized_program(field_name, logs_dir)
+
+            # Extract best prompt with full signature data
+            field_data = extract_best_prompt(field_name, gepa_results, field_config, program_data)
 
             # Export to file
             _ = export_prompt(field_data, output_dir)

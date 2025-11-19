@@ -111,14 +111,16 @@ class LLMClient:
 
     def batch_call(
         self,
-        prompts: dict[str, str],
+        prompts: dict[str, str | dict],
         system_prompt: str | None = None,
     ) -> dict[str, str | None]:
         """Make multiple LLM calls for different fields.
 
         Args:
-            prompts: Dictionary mapping field names to prompts
-            system_prompt: Optional system prompt to use for all calls
+            prompts: Dictionary mapping field names to prompts. Each prompt can be:
+                     - A string (legacy format, uses system_prompt parameter)
+                     - A dict with 'system' and 'user' keys (new DSPy format)
+            system_prompt: Optional fallback system prompt for legacy string prompts
 
         Returns:
             Dictionary mapping field names to responses
@@ -131,9 +133,19 @@ class LLMClient:
         for idx, (field_name, prompt) in enumerate(prompts.items(), 1):
             logger.info(f"Processing field {idx}/{total}: {field_name}")
 
+            # Handle both new dict format and legacy string format
+            if isinstance(prompt, dict):
+                # New format: prompt is a dict with 'system' and 'user' keys
+                field_system_prompt = prompt.get("system")
+                user_prompt = prompt.get("user", "")
+            else:
+                # Legacy format: prompt is a string
+                field_system_prompt = system_prompt
+                user_prompt = prompt
+
             response = self.call(
-                prompt=prompt,
-                system_prompt=system_prompt,
+                prompt=user_prompt,
+                system_prompt=field_system_prompt,
                 field_name=field_name,
             )
 
@@ -142,8 +154,7 @@ class LLMClient:
             if response is None:
                 logger.warning(f"Failed to get response for field: {field_name}")
 
-        logger.info(
-            f"Batch inference complete. " f"Successful: {sum(1 for v in results.values() if v is not None)}/{total}"
-        )
+        successful = sum(1 for v in results.values() if v is not None)
+        logger.info(f"Batch inference complete. Successful: {successful}/{total}")
 
         return results
