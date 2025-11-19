@@ -9,6 +9,13 @@ from typing import Any
 
 import yaml
 
+# Handle imports with proper path resolution
+_script_dir = Path(__file__).parent
+if str(_script_dir) not in sys.path:
+    sys.path.insert(0, str(_script_dir))
+
+from components.type_enforcers import apply_enforcer, has_enforcer, is_already_enforced
+
 #!/usr/bin/env python3
 """
 Export Optimized Prompts Script
@@ -16,11 +23,14 @@ Export Optimized Prompts Script
 This script processes optimization logs from prompt optimization runs and exports
 the best-performing prompts for each field to JSON files with their metadata.
 
+Optionally adds type enforcement instructions to ensure structured output from LLMs.
+
 Usage:
     python export_optimized_prompts.py \
         --input optimizer_logs/optimized_all \
         --output prompts/exported_prompts \
-        --config configs/fields_config.yaml
+        --config configs/fields_config.yaml \
+        --enforce-types
 
 
 
@@ -231,6 +241,7 @@ def extract_best_prompt(
     gepa_results: dict[str, Any],
     field_config: dict[str, Any],
     program_data: dict[str, Any],
+    enforce_types: bool = False,
 ) -> dict[str, Any]:
     """Extract the best-performing prompt and its metadata.
 
@@ -239,6 +250,7 @@ def extract_best_prompt(
         gepa_results: GEPA results dictionary
         field_config: Configuration for this field from fields_config.yaml
         program_data: The optimized DSPy program data
+        enforce_types: Whether to add type enforcement instructions
 
     Returns:
         Dictionary with field metadata, best prompt, signature data, and formatted prompts
@@ -262,12 +274,21 @@ def extract_best_prompt(
     signature_data = program_data.get("predict", {}).get("signature", {})
     demos = program_data.get("predict", {}).get("demos", [])
 
+    # Extract instructions without modification
+    instructions = best_candidate.get("instructions", "")
+
     # Format inference-ready prompt from program data
     try:
         final_prompt = format_inference_prompt(program_data)
     except Exception as e:
         logger.warning(f"Failed to format inference prompt for {field_name}: {e}")
         final_prompt = ""
+
+    # Apply type enforcement to final_prompt if enabled
+    if enforce_types and has_enforcer(field_type) and final_prompt:
+        if not is_already_enforced(final_prompt):
+            final_prompt = apply_enforcer(final_prompt, field_type, position="both")
+            logger.debug(f"{field_name}: Applied type enforcement to final_prompt for '{field_type}'")
 
     # Build output structure
     output = {
@@ -276,13 +297,13 @@ def extract_best_prompt(
         "matcher": matcher,
         "json_ref": json_ref,
         "params": params,
-        "instructions": best_candidate.get("instructions", ""),
-        "instructions_length": best_candidate.get("instruction_length", 0),
+        "instructions": instructions,  # Original instructions unchanged
+        "instructions_length": len(instructions),
         "score": best_candidate.get("score", 0.0),
         "index": best_candidate.get("index", 0),
         "signature": signature_data,
         "demos": demos,
-        "final_prompt": final_prompt,
+        "final_prompt": final_prompt,  # Potentially enforced
     }
 
     return output
@@ -309,13 +330,19 @@ def export_prompt(field_data: dict[str, Any], output_dir: Path) -> Path:
     return output_file
 
 
-def process_optimization_logs(input_dir: Path, config_path: Path, output_dir: Path) -> dict[str, Any]:
+def process_optimization_logs(
+    input_dir: Path,
+    config_path: Path,
+    output_dir: Path,
+    enforce_types: bool = False,
+) -> dict[str, Any]:
     """Process all optimization logs and export best prompts.
 
     Args:
         input_dir: Path to the optimizer logs directory (e.g., optimizer_logs/optimized_all)
         config_path: Path to fields_config.yaml
         output_dir: Path to output directory for exported prompts
+        enforce_types: Whether to add type enforcement instructions to prompts
 
     Returns:
         Dictionary with processing statistics
@@ -327,6 +354,8 @@ def process_optimization_logs(input_dir: Path, config_path: Path, output_dir: Pa
     # Ensure output directory exists
     output_dir.mkdir(parents=True, exist_ok=True)
     logger.info(f"Output directory: {output_dir}")
+    if enforce_types:
+        logger.info("Type enforcement is ENABLED")
 
     # Locate logs directory
     logs_dir = input_dir / "logs"
@@ -335,7 +364,14 @@ def process_optimization_logs(input_dir: Path, config_path: Path, output_dir: Pa
         raise FileNotFoundError(f"Logs directory not found: {logs_dir}")
 
     # Statistics
-    stats = {"total_fields": 0, "successful": 0, "failed": 0, "skipped": 0, "failed_fields": []}
+    stats = {
+        "total_fields": 0,
+        "successful": 0,
+        "failed": 0,
+        "skipped": 0,
+        "failed_fields": [],
+        "enforced_fields": 0,
+    }
 
     # Process each field in the config
     for field_name, field_config in fields_config.items():
@@ -351,7 +387,13 @@ def process_optimization_logs(input_dir: Path, config_path: Path, output_dir: Pa
             program_data = load_optimized_program(field_name, logs_dir)
 
             # Extract best prompt with full signature data
-            field_data = extract_best_prompt(field_name, gepa_results, field_config, program_data)
+            field_data = extract_best_prompt(
+                field_name, gepa_results, field_config, program_data, enforce_types=enforce_types
+            )
+
+            # Track if enforcement was applied
+            if enforce_types and has_enforcer(field_config.get("type", "unknown")):
+                stats["enforced_fields"] += 1
 
             # Export to file
             _ = export_prompt(field_data, output_dir)
@@ -411,6 +453,12 @@ Examples:
         help="Path to fields config file (default: configs/fields_config.yaml)",
     )
 
+    parser.add_argument(
+        "--enforce-types",
+        action="store_true",
+        help="Add type enforcement instructions to prompts based on field type",
+    )
+
     parser.add_argument("--verbose", "-v", action="store_true", help="Enable verbose logging")
 
     args = parser.parse_args()
@@ -442,7 +490,7 @@ Examples:
     logger.info("=" * 80)
 
     try:
-        stats = process_optimization_logs(args.input, args.config, args.output)
+        stats = process_optimization_logs(args.input, args.config, args.output, enforce_types=args.enforce_types)
 
         # Print summary
         logger.info("=" * 80)
@@ -452,6 +500,8 @@ Examples:
         logger.info(f"✓ Successful:    {stats['successful']}")
         logger.info(f"⊘ Skipped:       {stats['skipped']}")
         logger.info(f"✗ Failed:        {stats['failed']}")
+        if stats["enforced_fields"] > 0:
+            logger.info(f"📋 Enforced:     {stats['enforced_fields']}")
 
         if stats["failed_fields"]:
             logger.info(f"\nFailed fields: {', '.join(stats['failed_fields'])}")
