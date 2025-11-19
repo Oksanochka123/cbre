@@ -547,7 +547,8 @@ fields:
     type: enum
     matcher: EnumMatcher
     json_ref: STATIC::Gen Info 2::Gen Info 2|Prepaid Rent|Interest?
-    params: {}
+    params:
+      preset: yes_no
   loc_lb_amount:
     wave: 2
     type: number
@@ -566,7 +567,8 @@ fields:
     type: enum
     matcher: EnumMatcher
     json_ref: STATIC::Gen Info 2::Gen Info 2|Letter of Credit/Lease Bond|L-C/LB Auto Reduce?
-    params: {}
+    params:
+      preset: yes_no
   loc_lb_expiration_date:
     wave: 2
     type: date
@@ -812,6 +814,97 @@ fields:
     matcher: BooleanMatcher
     json_ref: STATIC::Rec Billings::Rec Billings|Recurring Billings|Is start date dependent on TI completion?
     params: {}
+  loc_lb_auto_reduce_terms:
+    wave: 2
+    type: string
+    matcher: StringMatcher
+    json_ref: STATIC::Gen Info 2::Gen Info 2|Letter of Credit/Lease Bond|Auto Reduce Terms
+    params:
+      threshold: 0.6
+  contraction_expiration_date:
+    wave: 2
+    type: date
+    matcher: DateMatcher
+    json_ref: TABLE_FILTER::Opt - Misc::Opt - Misc|Right of Contraction, Termination or Renewal::Right of Contraction, Termination or Renewal::Contraction::Expiration Date
+    params: {}
+  contraction_who_exercises:
+    wave: 2
+    type: enum
+    matcher: EnumMatcher
+    json_ref: TABLE_FILTER::Opt - Misc::Opt - Misc|Right of Contraction, Termination or Renewal::Right of Contraction, Termination or Renewal::Contraction::Who Exercises or Initiates
+    params:
+      valid_values:
+      - Tenant
+      - Landlord
+      - Tenant/Landlord
+  contraction_penalty:
+    wave: 2
+    type: string
+    matcher: StringMatcher
+    json_ref: TABLE_FILTER::Opt - Misc::Opt - Misc|Right of Contraction, Termination or Renewal::Right of Contraction, Termination or Renewal::Contraction::Penalty
+    params:
+      threshold: 0.6
+  renewal_extension_penalty:
+    wave: 2
+    type: string
+    matcher: StringMatcher
+    json_ref: TABLE_FILTER::Opt - Misc::Opt - Misc|Right of Contraction, Termination or Renewal::Right of Contraction, Termination or Renewal::Renewal/Extension::Penalty
+    params:
+      threshold: 0.6
+  termination_penalty:
+    wave: 2
+    type: string
+    matcher: StringMatcher
+    json_ref: TABLE_FILTER::Opt - Misc::Opt - Misc|Right of Contraction, Termination or Renewal::Right of Contraction, Termination or Renewal::Termination::Penalty
+    params:
+      threshold: 0.6
+  expansion_encumbered_space_unit:
+    wave: 2
+    type: string
+    matcher: StringMatcher
+    json_ref: 'TABLE_FILTER::Opt - Misc::Opt - Misc|Right of Expansion::Right of Expansion::Expansion::Encumbered Space Unit #'
+    params:
+      threshold: 0.9
+  expansion_encumbered_space_sf:
+    wave: 2
+    type: number
+    matcher: NumberMatcher
+    json_ref: TABLE_FILTER::Opt - Misc::Opt - Misc|Right of Expansion::Right of Expansion::Expansion::Encumbered Space SF
+    params: {}
+  rofo_encumbered_space_unit:
+    wave: 2
+    type: string
+    matcher: StringMatcher
+    json_ref: 'TABLE_FILTER::Opt - Misc::Opt - Misc|Right of First Offer or Refusal::Right of First Offer or Refusal::Right of First Offer (ROFO)::Encumbered Space Unit #'
+    params:
+      threshold: 0.9
+  rofo_encumbered_space_sf:
+    wave: 2
+    type: number
+    matcher: NumberMatcher
+    json_ref: TABLE_FILTER::Opt - Misc::Opt - Misc|Right of First Offer or Refusal::Right of First Offer or Refusal::Right of First Offer (ROFO)::Encumbered Space SF
+    params: {}
+  ti_allowance_psf:
+    wave: 2
+    type: number
+    matcher: NumberMatcher
+    json_ref: STATIC::Opt - Misc::Opt - Misc|TI Allowance/Lease Incentives/Commission Information|TI Allowance
+    params: {}
+  ti_calc_method:
+    wave: 2
+    type: enum
+    matcher: EnumMatcher
+    json_ref: STATIC::Opt - Misc::Opt - Misc|TI Allowance/Lease Incentives/Commission Information|TI Calc Method PSF or Total
+    params:
+      valid_values:
+      - PSF
+      - Total
+  ti_total_cost:
+    wave: 2
+    type: number
+    matcher: NumberMatcher
+    json_ref: STATIC::Opt - Misc::Opt - Misc|TI Allowance/Lease Incentives/Commission Information|TI Total Cost ( Select value in cell B47)
+    params: {}
 field_groups:
   wave1_all:
   - property_name
@@ -909,6 +1002,19 @@ field_groups:
   - rofo_ongoing
   - ti_amortized
   - rec_billings_ti_dependent
+  - loc_lb_auto_reduce_terms
+  - contraction_expiration_date
+  - contraction_who_exercises
+  - contraction_penalty
+  - renewal_extension_penalty
+  - termination_penalty
+  - expansion_encumbered_space_unit
+  - expansion_encumbered_space_sf
+  - rofo_encumbered_space_unit
+  - rofo_encumbered_space_sf
+  - ti_allowance_psf
+  - ti_calc_method
+  - ti_total_cost
   all_strings:
   - property_name
   - lessee_name
@@ -939,6 +1045,10 @@ field_groups:
   - legal_notice_attention
   - legal_notice_city_state_zip
   - ti_amortized
+  - loc_lb_auto_reduce_terms
+  - contraction_penalty
+  - renewal_extension_penalty
+  - termination_penalty
   all_addresses:
   - billing_address
   - premise_address
@@ -956,6 +1066,7 @@ field_groups:
   - renewal_extension_expiration_date
   - termination_expiration_date
   - rofo_expiration_date
+  - contraction_expiration_date
   all_enums:
   - tenant_entity_type
   - letter_of_credit_or_lease_bond
@@ -970,6 +1081,8 @@ field_groups:
   - reconciliation_right_to_audit
   - renewal_extension_who_exercises
   - termination_who_exercises
+  - contraction_who_exercises
+  - ti_calc_method
   all_numbers:
   - rent_due_day
   - building_square_footage
@@ -978,6 +1091,10 @@ field_groups:
   - loc_lb_amount
   - gl_insurance_per_occurrence
   - gl_insurance_aggregate
+  - expansion_encumbered_space_sf
+  - rofo_encumbered_space_sf
+  - ti_allowance_psf
+  - ti_total_cost
   all_floats:
   - building_prorata_pct
   - project_prorata_pct
@@ -1009,6 +1126,22 @@ field_groups:
   - tenant_property_insurance_required
   - rofo_ongoing
   - rec_billings_ti_dependent
+  leftovers:
+  - prepaid_rent_interest
+  - loc_lb_auto_reduce
+  - loc_lb_auto_reduce_terms
+  - contraction_expiration_date
+  - contraction_who_exercises
+  - contraction_penalty
+  - renewal_extension_penalty
+  - termination_penalty
+  - expansion_encumbered_space_unit
+  - expansion_encumbered_space_sf
+  - rofo_encumbered_space_unit
+  - rofo_encumbered_space_sf
+  - ti_allowance_psf
+  - ti_calc_method
+  - ti_total_cost
 optimization:
   student_model: openai/gpt-5-mini
   reflection_model: openai/gpt-5-mini
