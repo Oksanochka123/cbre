@@ -11,8 +11,9 @@ from components.constants import NULL_VALUES
 class BaseMatcher(ABC):
     """Base class for field matching."""
 
-    def __init__(self, field_name: str):
+    def __init__(self, field_name: str, field_type: str = "string"):
         self.field_name = field_name
+        self.field_type = field_type
 
     @abstractmethod
     def match(self, gold: Any, pred: Any) -> tuple[float, str]:
@@ -20,7 +21,10 @@ class BaseMatcher(ABC):
         pass
 
     def __call__(self, example, pred, trace=None) -> dspy.Prediction:
-        """DSPy metric interface."""
+        """DSPy metric interface.
+
+        Enhanced to provide richer feedback when predictions fail type validation.
+        """
         gold = self._extract(example, self.field_name)
         pred_val = self._extract(pred, self.field_name)
 

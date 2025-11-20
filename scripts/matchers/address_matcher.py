@@ -52,6 +52,17 @@ class AddressMatcher(BaseMatcher):
         return match.group(1) if match else None
 
     def match(self, gold: str, pred: str) -> tuple[float, str]:
+        from components.parse_feedback import format_parse_error_feedback, is_json_string
+
+        # Check if pred is a JSON string (JSON object/array instead of address string)
+        if is_json_string(pred):
+            feedback = format_parse_error_feedback(
+                self.field_name,
+                expected_type="address",
+                actual_value=pred,
+            )
+            return 0.0, feedback
+
         # Null handling first
         gold_null = self._is_null(gold)
         pred_null = self._is_null(pred)
@@ -81,10 +92,14 @@ class AddressMatcher(BaseMatcher):
         p_stripped = self._strip_company_info(pred)
         p_stripped_norm = self._normalize(p_stripped)
 
-        # Check if core address is in prediction (prediction is more detailed)
-        if g_norm in p_stripped_norm or g_norm in p_norm:
-            # Gold address appears as substring in prediction
-            return 0.8, f"✓ {self.field_name}: Gold embedded in prediction"
+        # Check if core address is a substring in prediction (must be meaningful, not just partial match)
+        # Only accept substring match if it's substantial (at least 70% of gold address)
+        if g_norm and p_stripped_norm:
+            words_gold = set(g_norm.split())
+            words_pred = set(p_stripped_norm.split())
+            # Check if most words from gold appear in prediction
+            if len(words_gold) > 0 and len(words_gold & words_pred) / len(words_gold) >= 0.7:
+                return 0.8, f"✓ {self.field_name}: Gold embedded in prediction"
 
         # Component-based matching
         score = 0.0

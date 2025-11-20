@@ -1144,6 +1144,6 @@ field_groups:
   - ti_total_cost
 optimization:
   student_model: openai/gpt-5-mini
-  reflection_model: openai/gpt-5-mini
+  reflection_model: openai/gpt-5
   gepa_auto: light
   gepa_seed: 42

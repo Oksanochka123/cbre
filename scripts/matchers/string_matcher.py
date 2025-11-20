@@ -3,16 +3,28 @@
 from difflib import SequenceMatcher
 
 from matchers.base_matcher import BaseMatcher
+from components.feedback import try_parse_value_with_feedback, format_feedback_with_context
 
 
 class StringMatcher(BaseMatcher):
     """Match strings with fuzzy similarity and null detection."""
 
     def __init__(self, field_name: str, threshold: float = 0.6):
-        super().__init__(field_name)
+        super().__init__(field_name, field_type="string")
         self.threshold = threshold
 
     def match(self, gold: str, pred: str) -> tuple[float, str]:
+        from components.parse_feedback import format_parse_error_feedback, is_json_string
+
+        # Check if pred is a JSON string (JSON object/array instead of string)
+        if is_json_string(pred):
+            feedback = format_parse_error_feedback(
+                self.field_name,
+                expected_type="string",
+                actual_value=pred,
+            )
+            return 0.0, feedback
+
         # Null handling first
         gold_null = self._is_null(gold)
         pred_null = self._is_null(pred)

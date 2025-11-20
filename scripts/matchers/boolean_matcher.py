@@ -11,6 +11,9 @@ class BooleanMatcher(BaseMatcher):
     TRUE_VALS = {"yes", "true", "t", "y", "1"}
     FALSE_VALS = {"no", "false", "f", "n", "0"}
 
+    def __init__(self, field_name: str):
+        super().__init__(field_name, field_type="boolean")
+
     def _to_bool(self, val: Any) -> bool | None:
         s = str(val).strip().lower()
         if s in self.TRUE_VALS:
@@ -20,6 +23,17 @@ class BooleanMatcher(BaseMatcher):
         return None
 
     def match(self, gold: Any, pred: Any) -> tuple[float, str]:
+        from components.parse_feedback import format_parse_error_feedback, is_json_string
+
+        # Check if pred is a JSON string (JSON object/array instead of boolean)
+        if is_json_string(pred):
+            feedback = format_parse_error_feedback(
+                self.field_name,
+                expected_type="boolean",
+                actual_value=pred,
+            )
+            return 0.0, feedback
+
         g_bool = self._to_bool(gold)
         p_bool = self._to_bool(pred)
 

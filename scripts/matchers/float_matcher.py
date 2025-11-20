@@ -11,7 +11,7 @@ class FloatMatcher(BaseMatcher):
 
     def __init__(self, field_name: str, tolerance: float = 5e-4,
                  allow_percentage: bool = True, allow_currency: bool = True, **kwargs):
-        super().__init__(field_name)
+        super().__init__(field_name, field_type="float")
         self.tolerance = tolerance
         self.allow_percentage = allow_percentage
         self.allow_currency = allow_currency
@@ -66,6 +66,17 @@ class FloatMatcher(BaseMatcher):
             return None
 
     def match(self, gold: Any, pred: Any) -> tuple[float, str]:
+        from components.parse_feedback import format_parse_error_feedback, is_json_string
+
+        # Check if pred is a JSON string (JSON object/array instead of float)
+        if is_json_string(pred):
+            feedback = format_parse_error_feedback(
+                self.field_name,
+                expected_type="float",
+                actual_value=pred,
+            )
+            return 0.0, feedback
+
         # Null handling first
         gold_null = self._is_null(gold)
         pred_null = self._is_null(pred)

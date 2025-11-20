@@ -62,11 +62,9 @@ class JSONMatcher(BaseMatcher):
 
     def match(self, gold: Any, pred: Any) -> tuple[float, str]:
         from json_metrics import hybrid_json_score, json_match_score, parse_json_safe
+        from components.parse_feedback import format_parse_error_feedback
 
-        # Parse data for value-showing feedback
-        gold_parsed = parse_json_safe(gold)
-        pred_parsed = parse_json_safe(pred)
-
+        # First, use the elaborate parsing logic from json_match_score
         if self.judge_lm:
             score, details = hybrid_json_score(
                 gold,
@@ -77,15 +75,25 @@ class JSONMatcher(BaseMatcher):
                 field_matchers=self.field_matchers,
             )
             prog_det = details.get("programmatic_details", {})
-            if "error" in prog_det:
-                return score, f"⚠ {self.field_name}: {prog_det['error']}"
-
-            feedback = self._build_detailed_feedback(score, details, prog_det)
+            parsing_error = prog_det.get("error")
         else:
             score, details = json_match_score(gold, pred, field_matchers=self.field_matchers)
-            if "error" in details:
-                return score, f"ERROR {self.field_name}: {details['error']}"
+            parsing_error = details.get("error")
 
+        # If parsing failed, provide simple feedback about type mismatch
+        if parsing_error:
+            feedback = format_parse_error_feedback(
+                self.field_name,
+                expected_type="json",
+                actual_value=pred,
+                parse_error=parsing_error,
+            )
+            return score, feedback
+
+        # Parsing succeeded - use the detailed feedback from json_match_score
+        if self.judge_lm:
+            feedback = self._build_detailed_feedback(score, details, prog_det)
+        else:
             feedback = self._build_detailed_feedback(score, details, details)
 
         return score, feedback

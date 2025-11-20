@@ -51,6 +51,17 @@ class NumberMatcher(BaseMatcher):
             return None
 
     def match(self, gold: Any, pred: Any) -> tuple[float, str]:
+        from components.parse_feedback import format_parse_error_feedback, is_json_string
+
+        # Check if pred is a JSON string (JSON object/array instead of number)
+        if is_json_string(pred):
+            feedback = format_parse_error_feedback(
+                self.field_name,
+                expected_type="number",
+                actual_value=pred,
+            )
+            return 0.0, feedback
+
         # Null handling first
         gold_null = self._is_null(gold)
         pred_null = self._is_null(pred)
